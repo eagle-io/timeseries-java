@@ -1,5 +1,5 @@
 version: v1.0
-name: Publish to packages
+name: Publish
 agent:
   machine:
     type: e1-standard-2
@@ -9,10 +9,10 @@ global_job_config:
     - name: TERM
       value: dumb
 blocks:
-  - name: Publish to packages
+  - name: Publish
     task:
       jobs:
-        - name: Publish
+        - name: packages.eagle.io
           commands:
             - checkout
             - source .semaphore/cache-helpers.sh
