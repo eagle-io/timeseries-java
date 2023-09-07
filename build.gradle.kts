@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.eagle"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -54,6 +54,8 @@ publishing {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.withType<Test> {
