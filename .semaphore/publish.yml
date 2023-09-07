@@ -15,7 +15,6 @@ blocks:
         - name: Publish
           commands:
             - checkout
-            - sem-version java 17
             - source .semaphore/cache-helpers.sh
             - restore-gradle-cache
             - ./gradlew build -x test --info --stacktrace
