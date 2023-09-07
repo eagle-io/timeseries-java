@@ -4,6 +4,10 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
+global_job_config:
+  env_vars:
+    - name: TERM
+      value: dumb
 blocks:
   - name: Publish to packages
     task:
@@ -12,11 +16,11 @@ blocks:
           commands:
             - checkout
             - sem-version java 17
-            - cache restore
+            - source .semaphore/cache-helpers.sh
+            - restore-gradle-cache
             - ./gradlew build -x test --info --stacktrace
-            - cache store
             - ./gradlew publish
       secrets:
-        - name: npm-secrets
+        - name: aws-cli-prod-creds
     run:
       when: branch = 'master'

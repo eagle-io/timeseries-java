@@ -4,6 +4,10 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
+global_job_config:
+  env_vars:
+    - name: TERM
+      value: dumb
 blocks:
   - name: 'Commit Suite & Build'
     task:
@@ -12,9 +16,7 @@ blocks:
           commands:
             - checkout
             - sem-version java 17
-            - cache restore
-            - ./gradlew build --info --stacktrace
-            - cache store
+            - .semaphore/build.sh
 promotions:
   - name: Publish to packages
     pipeline_file: publish.yml
