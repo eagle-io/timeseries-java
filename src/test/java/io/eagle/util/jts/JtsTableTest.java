@@ -1,5 +1,6 @@
 package io.eagle.util.jts;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -109,6 +110,43 @@ public class JtsTableTest {
             fields.put( COLUMN_2, new JtsField( DOG_FIELD ) );
             this.masterTable.putFields( TS[i], fields );
         }
+    }
+
+
+    @Test
+    public void testPutRecordsById() {
+        String id1 = "one";
+        String id2 = "two";
+        JtsField f1 = JtsField.of(11.1);
+        JtsField f2 = JtsField.of(22.2);
+        DateTime ts = DateTime.now();
+        JtsTable<String> table;
+        JtsRecord<String> expected;
+        JtsRecord<String> actual;
+
+        table = new JtsTable<>().withIndexEnumerated(Lists.newArrayList("one", "two"));
+        expected = new JtsRecord<>(ts, ImmutableMap.of(0, f1, 1, f2), ImmutableMap.of(0,   "one", 1, "two"));
+        table.putRecordById(expected);
+        actual = table.getFirstRecord();
+        assertEquals(expected, actual, "aligned index with common ids should put both fields");
+
+        table = new JtsTable<>().withIndexEnumerated(Lists.newArrayList("one", "two"));
+        table.putRecordById(new JtsRecord<>(ts, ImmutableMap.of(4, f1, 5, f2), ImmutableMap.of(4,   "one", 5, "two")));
+        expected = new JtsRecord<>(ts, ImmutableMap.of(0, f1, 1, f2));
+        actual = table.getFirstRecord();
+        assertEquals(expected, actual, "misaligned index with common ids should put both fields");
+
+        table = new JtsTable<>().withIndexEnumerated(Lists.newArrayList("one", "two"));
+        table.putRecordById(new JtsRecord<>(ts, ImmutableMap.of(4, f1, 5, f2), ImmutableMap.of(4,   "one", 5, "three")));
+        expected = new JtsRecord<>(ts, ImmutableMap.of(0, f1));
+        actual = table.getFirstRecord();
+        assertEquals(expected, actual, "misaligned index with one shared id should put one field");
+
+        table = new JtsTable<>().withIndexEnumerated(Lists.newArrayList(id1, id2));
+        table.putRecordById(new JtsRecord<>(ts, ImmutableMap.of(4, f1, 5, f2)));
+        expected = null;
+        actual = table.getFirstRecord();
+        assertEquals(expected, actual, "misaligned index with no shared ids should discard both fields");
     }
 
 

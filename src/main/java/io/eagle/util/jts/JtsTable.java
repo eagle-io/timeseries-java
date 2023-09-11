@@ -158,7 +158,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         this();
         Assert.notNull( records );
         Assert.noNullElements( records );
-        this.putRecordsById( Lists.newArrayList( records ) );
+        this.putRecordsByColumn( Lists.newArrayList( records ) );
     }
 
 

@@ -259,14 +259,14 @@ public class JtsRecord<T> {
         return this.index.get( column );
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
-    public boolean equals( final Object other ) {
-        JtsRecord<?> otherRecord = (JtsRecord<?>) other;
-        return Objects.equal( this.f, otherRecord.f ) &&
-                Objects.equal( this.ts, otherRecord.ts );
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JtsRecord<?> jtsRecord = (JtsRecord<?>) o;
+
+        if (!ts.equals(jtsRecord.ts)) return false;
+        return f.equals(jtsRecord.f);
     }
 }
