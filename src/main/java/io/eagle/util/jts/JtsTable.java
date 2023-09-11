@@ -175,13 +175,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
 
-    public JtsTable( final JtsTable<?> otherTable, final Map<Integer, T> otherIndex ) {
+    public JtsTable( final JtsTable<?> otherTable, final Map<Integer, ? extends T> otherIndex ) {
         this.innerTable = TreeBasedTable.create( otherTable.innerTable );
         this.index = HashBiMap.create( otherIndex );
         this.types = Maps.newHashMap( otherTable.types );
     }
 
-    public JtsTable( final NavigableMap<DateTime, Map<Integer, JtsField>> records, final Map<Integer, T> index ) {
+    public JtsTable( final NavigableMap<DateTime, Map<Integer, JtsField>> records, final Map<Integer, ? extends T> index ) {
         this.innerTable = TreeBasedTable.create();
         this.index = HashBiMap.create( index );
         this.types = Maps.newHashMap();
@@ -1179,13 +1179,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return this.index.get( column );
     }
 
-    public <T> JtsTable<T> withIndex( Map<Integer, T> index ) {
+    public <T> JtsTable<T> withIndex( Map<Integer, ? extends T> index ) {
         Assert.notEmpty( index );
 
         return new JtsTable<>( this, index );
     }
 
-    public <T> JtsTable<T> withIndexEnumerated( Collection<T> ids ) {
+    public <T> JtsTable<T> withIndexEnumerated( Collection<? extends T> ids ) {
         BiMap index = HashBiMap.<Integer, T>create();
         Integer i = 0;
 
