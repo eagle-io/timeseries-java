@@ -197,19 +197,10 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param records List of JtsRecords containing JtsFields to put into the table, never null
      */
     @JsonCreator
-    public JtsTable( List<JtsRecord<T>> records ) {
+    public JtsTable( List<JtsRecord<?>> records ) {
         this();
         Assert.notNull( records );
-        this.putRecordsById( records );
-    }
-
-
-    public JtsTable( Collection<? extends T> ids ) {
-        this();
-        Integer i = 0;
-
-        for( T id : ids )
-            this.index.forcePut( i++, id );
+        this.putRecordsByColumn( records );
     }
 
 
@@ -1188,10 +1179,20 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return this.index.get( column );
     }
 
-    public <I> JtsTable<I> withIndex( Map<Integer, I> index ) {
+    public <T> JtsTable<T> withIndex( Map<Integer, T> index ) {
         Assert.notEmpty( index );
 
         return new JtsTable<>( this, index );
+    }
+
+    public <T> JtsTable<T> withIndexEnumerated( Collection<T> ids ) {
+        BiMap index = HashBiMap.<Integer, T>create();
+        Integer i = 0;
+
+        for( T id : ids )
+            index.forcePut( i++, id );
+
+        return new JtsTable<>(this, index);
     }
 
     /**
@@ -1381,6 +1382,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
 
         for( final JtsRecord<T> record : records )
             this.putRecordById( record );
+    }
+
+    public void putRecordsByColumn(final Collection<JtsRecord<?>> records) {
+        Assert.notNull( records );
+
+        for( final JtsRecord<?> record: records )
+            this.putRecordByColumn(record);
     }
 
     /**

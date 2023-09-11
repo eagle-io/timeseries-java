@@ -171,7 +171,7 @@ public class JtsTest {
      */
     private final JtsDocument generateRandomTestData( int numColumns, int intervalMinutes, int numRecords, DateTime startDate ) throws Exception {
         DateTime timestamp = startDate;
-        JtsTable<Object> table = new JtsTable<>();
+        JtsTable<?> table = new JtsTable<>();
 
         // Process records
         for( int i = 0; i < numRecords; i++ ) {
@@ -183,7 +183,7 @@ public class JtsTest {
                 fields.put( j, new JtsField( new Random().nextDouble() * 100 - 50 ) );
             }
 
-            table.putRecord( new JtsRecord<>( timestamp, fields ) );
+            table.putRecordByColumn( new JtsRecord<>( timestamp, fields ) );
             timestamp = timestamp.plusMinutes( intervalMinutes );
         }
 
@@ -215,10 +215,10 @@ public class JtsTest {
     @Disabled("legacy test")
     public final void testJtsDocumentToFormattedJson() throws JsonProcessingException {
 
-        JtsTable<Object> jtsRecordSet = new JtsTable<>();
+        JtsTable<?> jtsRecordSet = new JtsTable<>();
 
         for( int i = 0; i < 10; i++ ) {
-            jtsRecordSet.putRecord( this.getSampleRecord() );
+            jtsRecordSet.putRecordByColumn( this.getSampleRecord() );
         }
 
         JtsDocument jtsDocument = new JtsDocument( jtsRecordSet, this.getSampleHeader() );
@@ -242,10 +242,10 @@ public class JtsTest {
     @Disabled("legacy test")
     public final void testJtsDocumentToDelimitedText() {
 
-        JtsTable<Object> jtsRecordSet = new JtsTable<>();
+        JtsTable<?> jtsRecordSet = new JtsTable<>();
 
         for( int i = 0; i < 10; i++ ) {
-            jtsRecordSet.putRecord( this.getSampleRecord() );
+            jtsRecordSet.putRecordByColumn( this.getSampleRecord() );
         }
 
         JtsDocument jtsDocument = new JtsDocument( jtsRecordSet, this.getSampleHeader() );
@@ -272,11 +272,10 @@ public class JtsTest {
     @Test
     @Disabled("legacy test")
     public final void testJtsDocumentToFixedWidth() {
-
-        JtsTable<Object> jtsRecordSet = new JtsTable<>();
+        JtsTable<?> jtsRecordSet = new JtsTable<>();
 
         for( int i = 0; i < 10; i++ ) {
-            jtsRecordSet.putRecord( this.getSampleRecord() );
+            jtsRecordSet.putRecordByColumn( this.getSampleRecord() );
         }
 
         JtsDocument jtsDocument = new JtsDocument( jtsRecordSet, this.getSampleHeader() );
@@ -423,16 +422,16 @@ public class JtsTest {
         fields.put( 2, dateField );
         fields.put( 3, coordsField );
 
-        JtsRecord<Object> record1 = new JtsRecord<>( new DateTime( DateTimeZone.UTC ), fields );
-        JtsRecord<Object> record2 = new JtsRecord<>( record1 );
-        JtsRecord<Object> record3 = new JtsRecord<>( record1 );
-        JtsRecord<Object> record4 = new JtsRecord<>( record1 );
+        JtsRecord<?> record1 = new JtsRecord<>( new DateTime( DateTimeZone.UTC ), fields );
+        JtsRecord<?> record2 = new JtsRecord<>( record1 );
+        JtsRecord<?> record3 = new JtsRecord<>( record1 );
+        JtsRecord<?> record4 = new JtsRecord<>( record1 );
 
         JtsTable<Object> table = new JtsTable<>();
-        table.putRecord( record1 );
-        table.putRecord( record2 );
-        table.putRecord( record3 );
-        table.putRecord( record4 );
+        table.putRecordByColumn( record1 );
+        table.putRecordByColumn( record2 );
+        table.putRecordByColumn( record3 );
+        table.putRecordByColumn( record4 );
 
         JtsDocument jts = new JtsDocument( table, this.getSampleHeader() );
 

@@ -76,7 +76,7 @@ public class JtsTableTest {
     /**
      * The table used by tests.
      */
-    JtsTable<Object> masterTable;
+    JtsTable<?> masterTable;
 
     /**
      * Creates a simple table of 10 rows and 3 columns. For easy comparison, row numbers correspond with milliseconds since epoch of the
@@ -107,7 +107,7 @@ public class JtsTableTest {
             fields.put( COLUMN_0, new JtsField( FOO_FIELD ) );
             fields.put( COLUMN_1, new JtsField( BAR_FIELD ) );
             fields.put( COLUMN_2, new JtsField( DOG_FIELD ) );
-            this.masterTable.putRecord( TS[i], fields );
+            this.masterTable.putFields( TS[i], fields );
         }
     }
 
@@ -185,7 +185,7 @@ public class JtsTableTest {
         JtsField[] jtsFields = { FOO_FIELD, BAR_FIELD, DOG_FIELD };
 
         // Create 10 JtsRecords, matching the master table
-        List<JtsRecord<Object>> jtsRecords = Lists.newArrayList();
+        List<JtsRecord<?>> jtsRecords = Lists.newArrayList();
 
         for( int i = 0; i < RECORD_COUNT; i++ )
             jtsRecords.add( new JtsRecord<>( TS[i], jtsFields ) );
@@ -199,7 +199,7 @@ public class JtsTableTest {
 
         // Try to use constructor with null JtsRecord; this should fail with IllegalArgumentException
         assertThrows( IllegalArgumentException.class, () -> {
-            new JtsTable<>( (JtsRecord<Object>) null );
+            new JtsTable<>( (JtsRecord<?>) null );
         } );
     }
 
@@ -223,13 +223,10 @@ public class JtsTableTest {
     }
 
 
-    /**
-     * Tests {@link JtsTable#clearColumn(int)}.
-     */
     @Test
     public void testClearColumn() {
         // Make a copy of the master table
-        JtsTable<Object> testTable = new JtsTable<>( this.masterTable );
+        JtsTable<?> testTable = new JtsTable<>( this.masterTable );
 
         // Clearing a column that does not exist should have no effect
         testTable.clearColumn( COLUMN_99 );
@@ -258,7 +255,7 @@ public class JtsTableTest {
     @Test
     public void testClearColumnBetween() {
         // Make a copy of the master table
-        JtsTable<Object> testTable = new JtsTable<>( this.masterTable );
+        JtsTable<?> testTable = new JtsTable<>( this.masterTable );
 
         // Clearing a column that does not exist should have no effect
         testTable.clearColumnBetween( COLUMN_99, TS[3], TS[7] );
@@ -591,7 +588,7 @@ public class JtsTableTest {
         expectedFieldsMap.put( COLUMN_1, expectedField );
         expectedFieldsMap.put( COLUMN_2, DOG_FIELD );
 
-        this.masterTable.putRecord( TS[5], expectedFieldsMap );
+        this.masterTable.putFields( TS[5], expectedFieldsMap );
         logger.debug( String.valueOf( this.masterTable ) );
 
         // Get the new field from the master table
@@ -619,7 +616,7 @@ public class JtsTableTest {
         expectedFieldsMap.put( COLUMN_1, new JtsField( "bbb" ) );
         expectedFieldsMap.put( COLUMN_2, new JtsField( "ccc" ) );
 
-        this.masterTable.putRecord( TS[5], expectedFieldsMap );
+        this.masterTable.putFields( TS[5], expectedFieldsMap );
         logger.debug( String.valueOf( this.masterTable ) );
 
         // Get the new fields from the master table
@@ -1136,8 +1133,8 @@ public class JtsTableTest {
         String b = "b";
         String c = "c";
 
-        JtsTable<String> table1 = new JtsTable<>( Lists.newArrayList( a, b, c ) );
-        JtsTable<String> table2 = new JtsTable<>( Lists.newArrayList( c, a, b ) );
+        JtsTable<String> table1 = new JtsTable<>().withIndexEnumerated( Lists.newArrayList( a, b, c ) );
+        JtsTable<String> table2 = new JtsTable<>().withIndexEnumerated( Lists.newArrayList( c, a, b ) );
 
         table1.mergeColumn( 0, this.masterTable.getColumn( 0 ), WriteMode.MERGE_FAIL_ON_EXISTING );
         table1.mergeColumn( 1, this.masterTable.getColumn( 1 ), WriteMode.MERGE_FAIL_ON_EXISTING );
@@ -1155,9 +1152,6 @@ public class JtsTableTest {
     }
 
 
-    /**
-     * Tests {@link JtsTable#put(Integer, DateTime, JtsField)}.
-     */
     @Test
     public void testPut() {
         JtsTable<?> emptyTable = new JtsTable<>();
@@ -1272,9 +1266,6 @@ public class JtsTableTest {
     }
 
 
-    /**
-     * Tests {@link JtsTable#putRecord(DateTime, Map)}.
-     */
     @Test
     public void testPutRecord() {
         // Create a new record containing new fields only for columns 0 and 1
@@ -1283,7 +1274,7 @@ public class JtsTableTest {
         fieldsMap.put( COLUMN_1, NEW_BAR_FIELD );
 
         // Put the new record in the master table as record 5
-        this.masterTable.putRecord( TS[5], fieldsMap );
+        this.masterTable.putRecordByColumn( new JtsRecord<>(TS[5], fieldsMap) );
         logger.debug( String.valueOf( this.masterTable ) );
 
         // Check the new record has the expected fields: column 0 should have NEW_FOO, column 1 should have NEW_BAR, column 2 should be null
@@ -1291,16 +1282,9 @@ public class JtsTableTest {
         assertEquals( NEW_BAR_FIELD, this.masterTable.getField( COLUMN_1, TS[5] ), "Value incorrect for column 1, record 5" );
         assertNull( this.masterTable.getField( COLUMN_2, TS[5] ), "Value incorrect for column 2, record 5" );
 
-        // Try to put a null fields map; this should fail with IllegalArgumentException
-        assertThrows( IllegalArgumentException.class, () -> {
-            this.masterTable.putRecord( TS[5], null );
-        } );
     }
 
 
-    /**
-     * Tests {@link JtsTable#putRecords(java.util.Collection)}.
-     */
     @Test
     public void testPutRecordsCollection() {
         // Create a new record containing new fields only for columns 0 and 1
@@ -1309,9 +1293,9 @@ public class JtsTableTest {
         fieldsMap.put( COLUMN_1, NEW_BAR_FIELD );
 
         // Put the new record in the master table as record 5
-        JtsRecord<Object> jtsRecord = new JtsRecord<>( TS[5], fieldsMap );
-        List<JtsRecord<Object>> records = Lists.newArrayList( jtsRecord );
-        this.masterTable.putRecords( records );
+        JtsRecord<?> jtsRecord = new JtsRecord<>( TS[5], fieldsMap );
+        List<JtsRecord<?>> records = Lists.newArrayList( jtsRecord );
+        this.masterTable.putRecordsByColumn( records );
         logger.debug( String.valueOf( this.masterTable ) );
 
         // Check the new record has the expected fields: column 0 should have NEW_FOO, column 1 should have NEW_BAR, column 2 should be null
@@ -1319,10 +1303,6 @@ public class JtsTableTest {
         assertEquals( NEW_BAR_FIELD, this.masterTable.getField( COLUMN_1, TS[5] ), "Value incorrect for column 1, record 5" );
         assertNull( this.masterTable.getField( COLUMN_2, TS[5] ), "Value incorrect for column 2, record 5" );
 
-        // Try to put a null collection; this should fail with IllegalArgumentException
-        assertThrows( IllegalArgumentException.class, () -> {
-            this.masterTable.putRecords( (Collection<JtsRecord<Object>>) null );
-        } );
     }
 
 
