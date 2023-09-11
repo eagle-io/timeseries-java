@@ -251,6 +251,14 @@ public class JtsRecord<T> {
     }
 
 
+    public BiMap<Integer, T> getIndex() {
+        return this.index;
+    }
+
+    public T getId( Integer column ) {
+        return this.index.get( column );
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)

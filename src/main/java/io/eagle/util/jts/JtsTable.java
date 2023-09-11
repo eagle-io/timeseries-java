@@ -158,7 +158,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         this();
         Assert.notNull( records );
         Assert.noNullElements( records );
-        this.putRecords( Lists.newArrayList( records ) );
+        this.putRecordsById( Lists.newArrayList( records ) );
     }
 
 
@@ -185,7 +185,9 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         this.innerTable = TreeBasedTable.create();
         this.index = HashBiMap.create( index );
         this.types = Maps.newHashMap();
-        this.putRecords( records );
+
+        for( DateTime ts : records.keySet() )
+            this.putFields( ts, records.get( ts ) );
     }
 
 
@@ -198,7 +200,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     public JtsTable( List<JtsRecord<T>> records ) {
         this();
         Assert.notNull( records );
-        this.putRecords( records );
+        this.putRecordsById( records );
     }
 
 
@@ -441,7 +443,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
 
         while( it.hasNext() && index <= count ) {
             ts = it.next();
-            to.putRecord( ts, from.getFields( ts ) );
+            to.putFields( ts, from.getFields( ts ) );
             index++;
         }
     }
@@ -451,11 +453,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return this.table();
     }
 
-    public final void addColumn( final SortedMap<DateTime, JtsField> records ) {
+    public void addColumn( final SortedMap<DateTime, JtsField> records ) {
         addColumn( null, records );
     }
 
-    public final void addColumn( final T id, final SortedMap<DateTime, JtsField> records ) {
+    public void addColumn( final T id, final SortedMap<DateTime, JtsField> records ) {
         SortedSet<Integer> columnIndexes = this.getColumnIndexes();
         Integer newColumnIndex = columnIndexes.isEmpty() ? 0 : columnIndexes.last() + 1;
 
@@ -465,13 +467,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         this.putColumn( newColumnIndex, records );
     }
 
-    public final void addTable( final JtsTable<T> table ) {
+    public void addTable( final JtsTable<T> table ) {
         for( Integer column : table.getColumnIndexes() )
             this.addColumn( table.getColumnId( column ), table.getColumn( column ) );
     }
 
     @Override
-    public final void clear() {
+    public void clear() {
         this.table().clear();
     }
 
@@ -480,7 +482,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param end the DateTime after which to remove records (exclusive), never null
      */
-    public final void clearAfter( final DateTime end ) {
+    public void clearAfter( final DateTime end ) {
         Assert.notNull( end );
 
         for( final Integer column : Sets.newHashSet( this.table().columnKeySet() ) )
@@ -492,7 +494,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param start the DateTime before which to remove records (exclusive), never null
      */
-    public final void clearBefore( final DateTime start ) {
+    public void clearBefore( final DateTime start ) {
         Assert.notNull( start );
 
         for( final Integer column : Sets.newHashSet( this.table().columnKeySet() ) )
@@ -504,7 +506,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param index record number before which to remove records (exclusive), never null
      */
-    public final void clearBefore( Integer index ) {
+    public void clearBefore( Integer index ) {
         Assert.notNull( index );
         Assert.isTrue( index > 0 );
 
@@ -520,12 +522,12 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param column the column number to clear (may not exist in the JtsTable)
      */
-    public final void clearColumn( final Integer column ) {
+    public void clearColumn( final Integer column ) {
         // Existence check is not required; if no mappings in the table have the provided column key, an empty map is returned.
         this.table().column( column ).clear();
     }
 
-    public final void clearColumn( final T id ) {
+    public void clearColumn( final T id ) {
         this.clearColumn( getColumnIndex( id ) );
     }
 
@@ -535,12 +537,12 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column the column number to remove records from
      * @param end    the DateTime after which to remove records (exclusive), never null
      */
-    public final void clearColumnAfter( final Integer column, final DateTime end ) {
+    public void clearColumnAfter( final Integer column, final DateTime end ) {
         Assert.notNull( end );
         this.getColumnModifiableAfter( column, end ).clear();
     }
 
-    public final void clearColumnAfter( final T id, final DateTime end ) {
+    public void clearColumnAfter( final T id, final DateTime end ) {
         this.clearColumnAfter( getColumnIndex( id ), end );
     }
 
@@ -550,12 +552,12 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column the column number to remove records from
      * @param start  the DateTime before which to remove records (exclusive), never null
      */
-    public final void clearColumnBefore( final Integer column, final DateTime start ) {
+    public void clearColumnBefore( final Integer column, final DateTime start ) {
         Assert.notNull( start );
         this.getColumnModifiableBefore( column, start ).clear();
     }
 
-    public final void clearColumnBefore( final T id, final DateTime start ) {
+    public void clearColumnBefore( final T id, final DateTime start ) {
         this.clearColumnBefore( getColumnIndex( id ), start );
     }
 
@@ -567,7 +569,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param start  the inclusive start time of records to clear, never null, never after end
      * @param end    the exclusive end time of records to clear, never null, never before start
      */
-    public final void clearColumnBetween( final Integer column, final DateTime start, final DateTime end ) {
+    public void clearColumnBetween( final Integer column, final DateTime start, final DateTime end ) {
         Assert.notNull( start );
         Assert.notNull( end );
 
@@ -580,15 +582,15 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the number of records in the table
      */
     @Override
-    public final int recordCount() {
+    public int recordCount() {
         return this.table().rowKeySet().size();
     }
 
-    public final int columnCount() {
+    public int columnCount() {
         return this.table().columnKeySet().size();
     }
 
-    public final Duration duration() {
+    public Duration duration() {
         if( this.table().isEmpty() )
             return null;
         else
@@ -605,6 +607,10 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             Integer column = this.index.isEmpty() ? 0 : Collections.max( this.index.keySet() ) + 1;
             this.index.forcePut( column, id );
         }
+    }
+
+    private boolean hasIndex() {
+        return this.index != null && this.index.size() > 0;
     }
 
     /**
@@ -625,11 +631,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return an unmodifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
      * column does not exist in the table
      */
-    public final SortedMap<DateTime, JtsField> getColumn( final Integer column ) {
+    public SortedMap<DateTime, JtsField> getColumn( final Integer column ) {
         return Collections.unmodifiableSortedMap( this.getColumnModifiable( column ) );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumn( final T id ) {
+    public SortedMap<DateTime, JtsField> getColumn( final T id ) {
         return getColumn( getColumnIndex( id ) );
     }
 
@@ -645,14 +651,14 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return an unmodifiable view of the specified column, but only including values which occur after the specified start time
      * (exclusive); if the column does not exist in the table, or if the start time is null, an empty map is returned
      */
-    public final SortedMap<DateTime, JtsField> getColumnAfter( final Integer column, final DateTime start ) {
+    public SortedMap<DateTime, JtsField> getColumnAfter( final Integer column, final DateTime start ) {
         if( start == null )
             return Maps.newTreeMap();
         else
             return Collections.unmodifiableSortedMap( this.getColumnModifiableAfter( column, start ) );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnAfter( final T id, final DateTime start ) {
+    public SortedMap<DateTime, JtsField> getColumnAfter( final T id, final DateTime start ) {
         return getColumnAfter( getColumnIndex( id ), start );
     }
 
@@ -669,14 +675,14 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return an unmodifiable view of the specified column, but only including values which occur before the specified end time
      * (exclusive); if the end time is null, an empty map is returned
      */
-    public final SortedMap<DateTime, JtsField> getColumnBefore( final Integer column, final DateTime end ) {
+    public SortedMap<DateTime, JtsField> getColumnBefore( final Integer column, final DateTime end ) {
         if( end == null )
             return Maps.newTreeMap();
         else
             return Collections.unmodifiableSortedMap( this.getColumnModifiableBefore( column, end ) );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnBefore( final T id, final DateTime end ) {
+    public SortedMap<DateTime, JtsField> getColumnBefore( final T id, final DateTime end ) {
         return getColumnBefore( getColumnIndex( id ), end );
     }
 
@@ -700,7 +706,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return an unmodifiable view of the specified column, but only including values which occur between the specified start time
      * (inclusive) and end time (exclusive)
      */
-    public final SortedMap<DateTime, JtsField> getColumnBetween( final Integer column, final DateTime start, final DateTime end ) {
+    public SortedMap<DateTime, JtsField> getColumnBetween( final Integer column, final DateTime start, final DateTime end ) {
         if( start == null && end == null )
             return Maps.newTreeMap();
         else if( start == null )
@@ -713,19 +719,19 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return Collections.unmodifiableSortedMap( this.getColumn( column ).subMap( start, end ) );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnBetween( final T id, final DateTime start, final DateTime end ) {
+    public SortedMap<DateTime, JtsField> getColumnBetween( final T id, final DateTime start, final DateTime end ) {
         return getColumnBetween( getColumnIndex( id ), start, end );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnDay( final T id, final LocalDate day ) {
+    public SortedMap<DateTime, JtsField> getColumnDay( final T id, final LocalDate day ) {
         return getColumnDay( getColumnIndex( id ), day );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnDay( final Integer column, final LocalDate day ) {
+    public SortedMap<DateTime, JtsField> getColumnDay( final Integer column, final LocalDate day ) {
         return getColumnBetween( column, day.toDateTimeAtStartOfDay( DateTimeZone.UTC ), day.plusDays( 1 ).toDateTimeAtStartOfDay( DateTimeZone.UTC ) );
     }
 
-    public final JtsField getColumnFirstField( final Integer column ) {
+    public JtsField getColumnFirstField( final Integer column ) {
         final DateTime ts = this.getColumnFirstTimestamp( column );
 
         if( ts == null )
@@ -734,7 +740,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return this.getColumn( column ).get( ts );
     }
 
-    public final JtsField getColumnFirstField( final T id ) {
+    public JtsField getColumnFirstField( final T id ) {
         return getColumnFirstField( getColumnIndex( id ) );
     }
 
@@ -746,7 +752,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the {@link JtsSample} representing the first value in the specified column, if the column exists and has at least one record,
      * otherwise returns null
      */
-    public final JtsSample getColumnFirstSample( final Integer column ) {
+    public JtsSample getColumnFirstSample( final Integer column ) {
         final DateTime ts = this.getColumnFirstTimestamp( column );
 
         if( ts == null )
@@ -755,7 +761,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsSample( ts, this.getColumn( column ).get( ts ) );
     }
 
-    public final JtsSample getColumnFirstSample( final T id ) {
+    public JtsSample getColumnFirstSample( final T id ) {
         return getColumnFirstSample( getColumnIndex( id ) );
     }
 
@@ -767,26 +773,26 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the timestamp of the first record in the specified column, if the column exists and has at least one record, otherwise
      * returns null
      */
-    public final DateTime getColumnFirstTimestamp( final Integer column ) {
+    public DateTime getColumnFirstTimestamp( final Integer column ) {
         if( this.hasColumn( column ) && ! this.getColumn( column ).isEmpty() )
             return this.getColumn( column ).firstKey();
         else
             return null;
     }
 
-    public final DateTime getColumnFirstTimestamp( final T id ) {
+    public DateTime getColumnFirstTimestamp( final T id ) {
         return getColumnFirstTimestamp( getColumnIndex( id ) );
     }
 
-    public final T getColumnId( Integer column ) {
+    public T getColumnId( Integer column ) {
         return this.index.get( column );
     }
 
-    public final Set<T> getColumnIds() {
+    public Set<T> getColumnIds() {
         return this.index.inverse().keySet();
     }
 
-    public final SortedSet<DateTime> getColumnKeys( final Collection<Integer> columns ) {
+    public SortedSet<DateTime> getColumnKeys( final Collection<Integer> columns ) {
         SortedSet<DateTime> columnKeys = Sets.newTreeSet();
 
         for( Integer column : columns )
@@ -803,7 +809,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the {@link JtsSample} representing the last value in the specified column, if the column exists and has at least one record,
      * otherwise returns null
      */
-    public final JtsSample getColumnLastSample( final Integer column ) {
+    public JtsSample getColumnLastSample( final Integer column ) {
         final DateTime ts = this.getColumnLastTimestamp( column );
 
         if( ts == null )
@@ -812,7 +818,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsSample( ts, this.getColumn( column ).get( ts ) );
     }
 
-    public final JtsSample getColumnLastSample( final T id ) {
+    public JtsSample getColumnLastSample( final T id ) {
         return getColumnLastSample( getColumnIndex( id ) );
     }
 
@@ -824,14 +830,14 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the timestamp of the last record in the specified column, if the column exists and has at least one record, otherwise
      * returns null
      */
-    public final DateTime getColumnLastTimestamp( final Integer column ) {
+    public DateTime getColumnLastTimestamp( final Integer column ) {
         if( this.hasColumn( column ) && ! this.getColumn( column ).isEmpty() )
             return this.getColumn( column ).lastKey();
         else
             return null;
     }
 
-    public final DateTime getColumnLastTimestamp( final T id ) {
+    public DateTime getColumnLastTimestamp( final T id ) {
         return getColumnLastTimestamp( getColumnIndex( id ) );
     }
 
@@ -845,11 +851,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return a modifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
      * column does not exist in the table
      */
-    public final SortedMap<DateTime, JtsField> getColumnModifiable( final Integer column ) {
+    public SortedMap<DateTime, JtsField> getColumnModifiable( final Integer column ) {
         return new JtsMap( (SortedMap<DateTime, JtsField>) this.table().column( column ), dataType -> setType( column, dataType ) );
     }
 
-    public final SortedMap<DateTime, JtsField> getColumnModifiable( final T id ) {
+    public SortedMap<DateTime, JtsField> getColumnModifiable( final T id ) {
         return this.getColumnModifiable( getColumnIndex( id ) );
     }
 
@@ -867,7 +873,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return an unmodifiable sorted set of column keys that have one or more values in the table
      */
-    public final SortedSet<Integer> getColumnIndexes() {
+    public SortedSet<Integer> getColumnIndexes() {
         return Collections.unmodifiableSortedSet( (SortedSet<Integer>) this.table().columnKeySet() );
     }
 
@@ -909,7 +915,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return this.getColumnModifiable( column ).headMap( end );
     }
 
-    public final JtsTable<T> getColumns( final Collection<Integer> columns ) {
+    public JtsTable<T> getColumns( final Collection<Integer> columns ) {
         JtsTable<T> table = new JtsTable<>();
 
         for( Integer index : columns )
@@ -925,14 +931,14 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     /**
      * Locate the first non-null field value in the given column and return its {@code DataType}.
      */
-    public final DataType getColumnType( Integer column ) {
+    public DataType getColumnType( Integer column ) {
         if( getColumn( column ).size() > 0 )
             Assert.isTrue( this.types.containsKey( column ), "Column contains records but has no type defined: " + column );
 
         return this.types.get( column );
     }
 
-    public final DataType getColumnType( T id ) {
+    public DataType getColumnType( T id ) {
         return getColumnType( getColumnIndex( id ) );
     }
 
@@ -943,24 +949,24 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param ts     the timestamp of the record to get the value from, never null
      * @return the {@link JtsField} value at the specified column number and record timestamp, or null if it does not exist
      */
-    public final JtsField getField( final Integer column, final DateTime ts ) {
+    public JtsField getField( final Integer column, final DateTime ts ) {
         Assert.notNull( ts );
         return this.table().row( ts ).get( column );
     }
 
-    public final JtsField getField( final T id, final DateTime ts ) {
+    public JtsField getField( final T id, final DateTime ts ) {
         return getField( getColumnIndex( id ), ts );
     }
 
-    public final boolean hasField( final Integer column, final DateTime ts ) {
+    public boolean hasField( final Integer column, final DateTime ts ) {
         return getField( column, ts ) != null;
     }
 
-    public final boolean hasField( final T id, final DateTime ts ) {
+    public boolean hasField( final T id, final DateTime ts ) {
         return getField( id, ts ) != null;
     }
 
-    public final JtsField getFieldBefore( final Integer column, final DateTime ts ) {
+    public JtsField getFieldBefore( final Integer column, final DateTime ts ) {
         Assert.notNull( ts );
         SortedMap<DateTime, JtsField> records = this.getColumnBefore( column, ts );
 
@@ -970,7 +976,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return records.get( records.lastKey() );
     }
 
-    public final JtsField getFieldBefore( final T id, final DateTime ts ) {
+    public JtsField getFieldBefore( final T id, final DateTime ts ) {
         return getFieldBefore( getColumnIndex( id ), ts );
     }
 
@@ -983,13 +989,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the {@link JtsField} values in the record specified by the given timestamp, as a mapping of column => JtsField; if there are
      * no records matching the timestamp, an empty map is returned
      */
-    public final Map<Integer, JtsField> getFields( final DateTime ts ) {
+    public Map<Integer, JtsField> getFields( final DateTime ts ) {
         Assert.notNull( ts );
 
         return this.table().row( ts );
     }
 
-    public final LocalDate getFirstDay( DateTimeZone timezone ) {
+    public LocalDate getFirstDay( DateTimeZone timezone ) {
         Assert.notNull( timezone );
         DateTime firstTs = getFirstTimestamp();
 
@@ -1004,7 +1010,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return the first {@link JtsRecord} in the table, or null if there are no records in the table
      */
-    public final JtsRecord<T> getFirstRecord() {
+    public JtsRecord<T> getFirstRecord() {
         final DateTime firstTs = this.getFirstTimestamp();
 
         if( firstTs == null )
@@ -1019,7 +1025,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the timestamp of the first record in the table, or null if there are no records in the table
      */
     @Override
-    public final DateTime getFirstTimestamp() {
+    public DateTime getFirstTimestamp() {
         final SortedSet<DateTime> firstTimestamps = new TreeSet<>();
 
         for( final Integer column : this.table().columnKeySet() )
@@ -1031,7 +1037,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return firstTimestamps.first();
     }
 
-    public final LocalDate getLastDay( DateTimeZone timezone ) {
+    public LocalDate getLastDay( DateTimeZone timezone ) {
         Assert.notNull( timezone );
         DateTime lastTs = getLastTimestamp();
 
@@ -1046,7 +1052,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return the last {@link JtsRecord} in the table, or null if there are no records in the table
      */
-    public final JtsRecord<T> getLastRecord() {
+    public JtsRecord<T> getLastRecord() {
         final DateTime lastTs = this.getLastTimestamp();
 
         if( lastTs == null )
@@ -1061,7 +1067,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the timestamp of the last record in the table, or null if there are no records in the table
      */
     @Override
-    public final DateTime getLastTimestamp() {
+    public DateTime getLastTimestamp() {
         final SortedSet<DateTime> lastTimestamps = new TreeSet<>();
 
         for( final Integer column : this.table().columnKeySet() )
@@ -1073,7 +1079,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return lastTimestamps.last();
     }
 
-    public final Interval getRange() {
+    public Interval getRange() {
         DateTime startTs = getFirstTimestamp();
         DateTime endTs = getLastTimestamp();
 
@@ -1088,11 +1094,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return an unmodifiable time ordered map of all records in the table
      */
-    public final Map<DateTime, Map<Integer, JtsField>> getRecords() {
+    public Map<DateTime, Map<Integer, JtsField>> getRecords() {
         return Collections.unmodifiableMap( this.table().rowMap() );
     }
 
-    public final JtsRecord<T> getRecordAt( int i ) {
+    public JtsRecord<T> getRecordAt( int i ) {
         Map<DateTime, Map<Integer, JtsField>> records = getRecords();
 
         if( records.isEmpty() || records.size() <= i )
@@ -1101,7 +1107,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsRecord<>( Iterables.get( getRecords().entrySet(), i ), this.index );
     }
 
-    public final JtsRecord<T> getRecordAfter( DateTime ts, boolean inclusive ) {
+    public JtsRecord<T> getRecordAfter( DateTime ts, boolean inclusive ) {
         Assert.notNull( ts );
         NavigableMap<DateTime, Map<Integer, JtsField>> records = getRecordsAfter( ts, inclusive );
 
@@ -1111,7 +1117,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsRecord<>( records.firstEntry(), this.index );
     }
 
-    public final JtsRecord<T> getRecordBefore( DateTime ts, boolean inclusive ) {
+    public JtsRecord<T> getRecordBefore( DateTime ts, boolean inclusive ) {
         Assert.notNull( ts );
         NavigableMap<DateTime, Map<Integer, JtsField>> records = getRecordsBefore( ts, inclusive );
 
@@ -1121,17 +1127,17 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsRecord<>( records.lastEntry(), this.index );
     }
 
-    public final NavigableMap<DateTime, Map<Integer, JtsField>> getRecordsAfter( DateTime ts, boolean inclusive ) {
+    public NavigableMap<DateTime, Map<Integer, JtsField>> getRecordsAfter( DateTime ts, boolean inclusive ) {
         Assert.notNull( ts );
         return new TreeMap<>( this.table().rowMap() ).tailMap( ts, inclusive );
     }
 
-    public final NavigableMap<DateTime, Map<Integer, JtsField>> getRecordsBefore( DateTime ts, boolean inclusive ) {
+    public NavigableMap<DateTime, Map<Integer, JtsField>> getRecordsBefore( DateTime ts, boolean inclusive ) {
         Assert.notNull( ts );
         return new TreeMap<>( this.table().rowMap() ).headMap( ts, inclusive );
     }
 
-    public final Map<DateTime, Map<Integer, JtsField>> getRecordsBetween( DateTime start, DateTime end ) {
+    public Map<DateTime, Map<Integer, JtsField>> getRecordsBetween( DateTime start, DateTime end ) {
         Assert.notNull( start );
         Assert.notNull( end );
 
@@ -1150,13 +1156,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return the {@link JtsSample} at the specified column and timestamp; if no such value exists in the table, a JtsSample consisting of
      * the given timestamp and a null JtsField value will be returned
      */
-    public final JtsSample getSample( final Integer column, final DateTime ts ) {
+    public JtsSample getSample( final Integer column, final DateTime ts ) {
         Assert.notNull( ts );
 
         return new JtsSample( ts, this.table().get( ts, column ) );
     }
 
-    public final JtsSample getSampleBefore( final T id, final DateTime ts ) {
+    public JtsSample getSampleBefore( final T id, final DateTime ts ) {
         SortedMap<DateTime, JtsField> columnBefore = getColumnBefore( id, ts );
 
         if( columnBefore.isEmpty() )
@@ -1165,7 +1171,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             return new JtsSample( columnBefore.lastKey(), columnBefore.get( columnBefore.lastKey() ) );
     }
 
-    public final JtsSample getSampleAfter( final T id, final DateTime ts ) {
+    public JtsSample getSampleAfter( final T id, final DateTime ts ) {
         SortedMap<DateTime, JtsField> columnAfter = getColumnAfter( id, ts );
 
         if( columnAfter.isEmpty() )
@@ -1196,7 +1202,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return a collection of all values
      */
-    public final Collection<JtsField> getValues() {
+    public Collection<JtsField> getValues() {
         return this.table().values();
     }
 
@@ -1206,7 +1212,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column the column number to check for existence
      * @return true if this JtsTable contains a column specified by the given column number, otherwise false
      */
-    public final boolean hasColumn( final Integer column ) {
+    public boolean hasColumn( final Integer column ) {
         return this.table().containsColumn( column );
     }
 
@@ -1227,7 +1233,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param timestamp the record timestamp to check for existence
      * @return true if this JtsTable contains a record specified by the given DateTime, otherwise false
      */
-    public final boolean hasRecord( final DateTime timestamp ) {
+    public boolean hasRecord( final DateTime timestamp ) {
         return this.table().containsRow( timestamp );
     }
 
@@ -1237,7 +1243,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return true if the table contains no mappings
      */
     @Override
-    public final boolean isEmpty() {
+    public boolean isEmpty() {
         return this.table().isEmpty();
     }
 
@@ -1251,30 +1257,30 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param writeMode determines behavior when merging the new records, including when the new records have identical timestamps as
      *                  existing records; never null
      */
-    public final void mergeColumn( final T id, final SortedMap<DateTime, JtsField> records, final WriteMode writeMode ) {
+    public void mergeColumn( final T id, final SortedMap<DateTime, JtsField> records, final WriteMode writeMode ) {
         mergeColumn( getColumnModifiable( id ), records, writeMode );
     }
 
-    public final void mergeColumn( final Integer column, final SortedMap<DateTime, JtsField> records, final WriteMode writeMode ) {
+    public void mergeColumn( final Integer column, final SortedMap<DateTime, JtsField> records, final WriteMode writeMode ) {
         mergeColumn( getColumnModifiable( column ), records, writeMode );
     }
 
-    public final void mergeRecordByColumn( JtsRecord<?> record ) {
+    public void mergeRecordByColumn( JtsRecord<?> record ) {
         Assert.notNull( record );
 
         if( hasRecord( record.getTimestamp() ) )
             record.getFields().forEach( ( column, field ) -> put( record.getTimestamp(), column, field ) );
         else
-            putRecord( record.getTimestamp(), record.getFields() );
+            putFields( record.getTimestamp(), record.getFields() );
     }
 
-    public final void mergeRecordById( JtsRecord<T> record ) {
+    public void mergeRecordById( JtsRecord<T> record ) {
         Assert.notNull( record );
 
         if( hasRecord( record.getTimestamp() ) )
             record.getFields().forEach( ( column, field ) -> put( record.getTimestamp(), getColumnId( column ), field ) );
         else
-            putRecord( record );
+            putRecordById( record );
     }
 
     /**
@@ -1285,7 +1291,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param field  the value to put into the table
      */
     @Override
-    public final JtsField put( final DateTime ts, final Integer column, final JtsField field ) {
+    public JtsField put( final DateTime ts, final Integer column, final JtsField field ) {
         Assert.notNull( column );
         Assert.notNull( ts );
         Assert.notNull( field );
@@ -1295,7 +1301,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return super.put( ts, column, field );
     }
 
-    public final void put( final DateTime ts, final T id, final JtsField field ) {
+    public void put( final DateTime ts, final T id, final JtsField field ) {
         ensureIndex( id );
         put( ts, getColumnIndex( id ), field );
     }
@@ -1316,7 +1322,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column  the column number to clear and add records to (may not exist in the JtsTable)
      * @param records the records to add to the column after it is cleared, never null
      */
-    public final void putColumn( final Integer column, final SortedMap<DateTime, JtsField> records ) {
+    public void putColumn( final Integer column, final SortedMap<DateTime, JtsField> records ) {
         Assert.notNull( records );
 
         clearColumn( column );
@@ -1325,19 +1331,19 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
             put( ts, column, records.get( ts ) );
     }
 
-    public final void putColumn( final T id, final SortedMap<DateTime, JtsField> records ) {
+    public void putColumn( final T id, final SortedMap<DateTime, JtsField> records ) {
         ensureIndex( id );
         putColumn( getColumnIndex( id ), records );
     }
 
     /**
-     * Puts the given record (defined by a timestamp and fields map) into the table; this operation always replaces an existing record
+     * Puts the given fields into the table; this operation always replaces an existing record
      * in the table with the same timestamp.
      *
      * @param ts     the timestamp of the record, never null
      * @param fields the fields map of the record, never null
      */
-    public final void putRecord( final DateTime ts, final Map<Integer, JtsField> fields ) {
+    public void putFields(final DateTime ts, final Map<Integer, JtsField> fields) {
         Assert.notNull( ts );
         Assert.notNull( fields );
         Assert.noNullElements( fields.values().toArray(), "fields map must not contain null values" );
@@ -1351,9 +1357,17 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         }
     }
 
-    public final void putRecord( JtsRecord<T> record ) {
+    public void putRecordByColumn(JtsRecord<?> record) {
         Assert.notNull( record );
-        this.putRecord( record.getTimestamp(), record.getFields() );
+        this.putFields(record.getTimestamp(), record.getFields());
+    }
+
+    public void putRecordById(JtsRecord<T> record) {
+        Assert.notNull( record );
+
+        for( T id: Sets.intersection(this.index.values(), record.getIndex().values()) ) {
+            this.put(record.getTimestamp(), id, record.getField(id));
+        }
     }
 
     /**
@@ -1362,18 +1376,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param records the records to put, never null, must not contain any null elements
      */
-    public final void putRecords( final Collection<JtsRecord<T>> records ) {
+    public void putRecordsById(final Collection<JtsRecord<T>> records) {
         Assert.notNull( records );
 
         for( final JtsRecord<T> record : records )
-            this.putRecord( record );
-    }
-
-    public final void putRecords( final Map<DateTime, Map<Integer, JtsField>> records ) {
-        Assert.notNull( records );
-
-        for( DateTime ts : records.keySet() )
-            this.putRecord( ts, records.get( ts ) );
+            this.putRecordById( record );
     }
 
     /**
@@ -1383,7 +1390,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column the column number to insert the sample into
      * @param sample the sample to put, never null
      */
-    public final void putSample( final Integer column, final JtsSample sample ) {
+    public void putSample(final Integer column, final JtsSample sample) {
         Assert.notNull( sample );
 
         assertType( getColumnType( column ), sample.getField().getDataType() );
@@ -1397,7 +1404,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @param column  the column number to insert the sample into
      * @param samples the samples to put, never null, must not contain any null elements
      */
-    public final void putSamples( final Integer column, final JtsSample... samples ) {
+    public void putSamples( final Integer column, final JtsSample... samples ) {
         Assert.notNull( samples );
         Assert.noNullElements( samples );
 
@@ -1410,7 +1417,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param other table to put, never null
      */
-    public final JtsTable<T> mergeTableById( final JtsTable<T> other, WriteMode writeMode ) {
+    public JtsTable<T> mergeTableById( final JtsTable<T> other, WriteMode writeMode ) {
         Assert.notNull( other );
 
         for( T id : Sets.intersection( this.getColumnIds(), other.getColumnIds() ) )
@@ -1422,7 +1429,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return this;
     }
 
-    public final JtsTable<T> mergeTableByColumn( final JtsTable<?> other, WriteMode writeMode ) {
+    public JtsTable<T> mergeTableByColumn( final JtsTable<?> other, WriteMode writeMode ) {
         Assert.notNull( other );
 
         for( Integer column : Sets.intersection( this.getColumnIndexes(), other.getColumnIndexes() ) )
@@ -1439,19 +1446,19 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param column the column number to remove (may not exist in the JtsTable)
      */
-    public final void removeColumn( final Integer column ) {
+    public void removeColumn( final Integer column ) {
         // Existence check is not required; the column is only removed if present
         this.table().columnMap().remove( column );
     }
 
-    public final JtsTable<T> removeFirst( final Integer count ) {
+    public JtsTable<T> removeFirst( final Integer count ) {
         JtsTable<T> records = slice( 0, count );
         clearBefore( count );
 
         return records;
     }
 
-    public final Duration resolution() {
+    public Duration resolution() {
         if( this.table().isEmpty() )
             return null;
         else
@@ -1464,7 +1471,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param count the number of records to retain, counting from the start of the table; must be non-negative
      */
-    public final void retainFirst( final Integer count ) {
+    public void retainFirst( final Integer count ) {
         Assert.isTrue( count >= 0 );
 
         // If retaining 0 records, clear the table
@@ -1478,26 +1485,26 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         }
     }
 
-    public final void retainColumnFirst( final Integer column, final Integer count ) {
+    public void retainColumnFirst( final Integer column, final Integer count ) {
         SortedMap<DateTime, JtsField> records = getColumnModifiable( column );
 
         if( records.size() > count )
             clearColumnAfter( column, Iterables.get( records.keySet(), count - 1 ) );
     }
 
-    public final void retainColumnFirst( final T id, final Integer count ) {
+    public void retainColumnFirst( final T id, final Integer count ) {
         ensureIndex( id );
         retainColumnFirst( getColumnIndex( id ), count );
     }
 
-    public final void retainColumnLast( final Integer column, final Integer count ) {
+    public void retainColumnLast( final Integer column, final Integer count ) {
         SortedMap<DateTime, JtsField> records = getColumnModifiable( column );
 
         if( records.size() > count )
             clearColumnBefore( column, Iterables.get( records.keySet(), records.keySet().size() - count ) );
     }
 
-    public final void retainColumnLast( final T id, final Integer count ) {
+    public void retainColumnLast( final T id, final Integer count ) {
         ensureIndex( id );
         retainColumnLast( getColumnIndex( id ), count );
     }
@@ -1508,7 +1515,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @param count the number of records to retain, counting from the end of the table; must be non-negative
      */
-    public final void retainLast( final Integer count ) {
+    public void retainLast( final Integer count ) {
         Assert.isTrue( count >= 0 );
 
         // If retaining 0 records, clear the table
@@ -1525,7 +1532,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     /**
      * Returns whether the records in this table encapsulates the given timestamp (start and end inclusive).
      */
-    public final boolean encapsulates( DateTime time ) {
+    public boolean encapsulates( DateTime time ) {
         DateTime first = this.getFirstTimestamp();
         DateTime last = this.getLastTimestamp();
 
@@ -1537,11 +1544,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return the number of fields in the table
      */
-    public final Integer fieldCount() {
+    public Integer fieldCount() {
         return this.table().size();
     }
 
-    public final JtsTable<T> slice( DateTime start, DateTime end ) {
+    public JtsTable<T> slice( DateTime start, DateTime end ) {
         JtsTable<T> table = new JtsTable<>( this );
         table.clearBefore( start );
         table.clearAfter( end );
@@ -1549,7 +1556,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return table;
     }
 
-    public final JtsTable<T> slice( Integer offset, Integer length ) {
+    public JtsTable<T> slice( Integer offset, Integer length ) {
         Assert.notNull( offset );
         Assert.isTrue( offset >= 0 );
         Assert.isTrue( offset < this.recordCount() );
@@ -1583,7 +1590,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     @Override
-    public final String toDelimitedText( JtsDocumentHeader header, DocumentFormat documentFormat, DateTimeZone timezone ) {
+    public String toDelimitedText( JtsDocumentHeader header, DocumentFormat documentFormat, DateTimeZone timezone ) {
         StringBuilder sb = new StringBuilder();
         Map<DateTime, Map<Integer, JtsField>> records = this.getRecords();
         SortedSet<Integer> columnIndexes = this.getColumnIndexes();
@@ -1626,7 +1633,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     @Override
-    public final String toFixedWidth( JtsDocumentHeader header, DocumentFormat documentFormat, DateTimeZone timezone ) {
+    public String toFixedWidth( JtsDocumentHeader header, DocumentFormat documentFormat, DateTimeZone timezone ) {
         StringBuilder sb = new StringBuilder();
         Map<DateTime, Map<Integer, JtsField>> records = this.getRecords();
         SortedSet<Integer> columnIndexes = this.getColumnIndexes();
@@ -1679,11 +1686,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * @return a String representation of the JtsTable
      */
     @Override
-    public final String toString() {
+    public String toString() {
         return toString( 10 );
     }
 
-    public final String toString( int recordCount ) {
+    public String toString( int recordCount ) {
         final Integer columnWidth = 29;
         final StringBuilder sb = new StringBuilder();
         final Map<DateTime, Map<Integer, JtsField>> records = this.table().rowMap();
@@ -1772,7 +1779,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         Map<DateTime, Map<Integer, JtsField>> records = this.getRecords();
 
         for( DateTime ts : records.keySet() )
-            t.putRecord( ts.withZone( zone ), records.get( ts ) );
+            t.putFields( ts.withZone( zone ), records.get( ts ) );
 
         return t;
     }
