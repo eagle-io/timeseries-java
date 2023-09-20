@@ -23,6 +23,10 @@ public class Metrics extends ComplexValue<List<Double>> {
         return this.value.size();
     }
 
+    public Double get(int index) {
+        return this.value.get(index);
+    }
+
     @Override
     public String getKey() {
         return METRICS_KEY;
