@@ -19,6 +19,10 @@ public class Metrics extends ComplexValue<List<Double>> {
         this.value.add(value);
     }
 
+    public int size() {
+        return this.value.size();
+    }
+
     @Override
     public String getKey() {
         return METRICS_KEY;
