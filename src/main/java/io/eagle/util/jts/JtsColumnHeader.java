@@ -12,6 +12,8 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 
 /**
  * An immutable column header which describes a column within a {@link JtsDocumentHeader}; part of the JSON Time Series document
@@ -69,6 +71,8 @@ public class JtsColumnHeader {
 
     private DateTime baselineTime;
 
+    private List<String> metrics;
+
     /**
      * Default constructor; looks useless because the fields are final, but in fact this is used by Jackson for object/JSON mapping.
      */
@@ -94,6 +98,7 @@ public class JtsColumnHeader {
         this.units = other.getUnits();
         this.baselineType = other.getBaselineType();
         this.baselineTime = other.getBaselineTime();
+        this.metrics = other.getMetrics();
     }
 
 
@@ -132,6 +137,7 @@ public class JtsColumnHeader {
         this.units = builder.units;
         this.baselineType = builder.baselineType;
         this.baselineTime = builder.baselineTime;
+        this.metrics = builder.metrics;
     }
 
     /**
@@ -251,6 +257,10 @@ public class JtsColumnHeader {
         return baselineTime;
     }
 
+    public List<String> getMetrics() {
+        return metrics;
+    }
+
     public static class Builder {
 
         private String id;
@@ -264,6 +274,7 @@ public class JtsColumnHeader {
         private String units;
         private BaselineType baselineType;
         private DateTime baselineTime;
+        private List<String> metrics;
 
         public Builder id(String id) {
             this.id = id;
@@ -327,6 +338,11 @@ public class JtsColumnHeader {
 
         public Builder baselineTime(DateTime baselineTime) {
             this.baselineTime = baselineTime;
+            return this;
+        }
+
+        public Builder metrics(List<String> metrics) {
+            this.metrics = metrics;
             return this;
         }
 
