@@ -2,13 +2,11 @@ package io.eagle.util.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.google.common.net.MediaType;
@@ -19,11 +17,14 @@ import io.eagle.util.jts.JtsTableSerializer;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 
 public class EagleObjectMapper extends ObjectMapper {
+    private static final Logger logger = LoggerFactory.getLogger(EagleObjectMapper.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -52,8 +53,16 @@ public class EagleObjectMapper extends ObjectMapper {
 
         // Register the JodaModule, which is required to correctly de/serialize Joda DateTime objects
         this.registerModule(new JodaModule());
-
+        this.registerModule(new Jdk8Module());
         this.registerModule( new KotlinModule() );
+
+//        try {
+//            for (Class<? extends ComplexValue> subType : new Reflections().getSubTypesOf(ComplexValue.class)) {
+//                this.registerSubtypes(new NamedType(subType, subType.newInstance().getTypeId()));
+//            }
+//        } catch (InstantiationException | IllegalAccessException e) {
+//            throw new RuntimeException(e.getMessage(), e);
+//        }
 
         // Register custom serializers/deserializers
         this.registerModule(new SimpleModule() {

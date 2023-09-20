@@ -9,10 +9,9 @@ import com.google.common.base.Objects;
 import io.eagle.util.Assert;
 import io.eagle.util.jackson.EagleObjectMapper;
 import io.eagle.util.jackson.JacksonUtil;
-import io.eagle.util.ComplexValue;
-import io.eagle.util.FieldFormat;
 import io.eagle.util.NumberFormat;
 import io.eagle.util.jts.JtsViews.*;
+import io.eagle.util.jts.complex.ComplexValue;
 import io.eagle.util.time.MomentTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -28,9 +27,6 @@ import java.util.TreeMap;
 /**
  * An immutable JTS document as part of the JSON Time Series document specification; a JTS document is the top-level structure of the JTS
  * specification.
- * <p>
- * A JTS document consists of metadata Strings ({@link #docType} and {@link #version}) and {@link #data}, a mapping of record number =>
- * {@link JtsRecord} object.
  * <p>
  * JtsDocument can be serialized to JSON using the Jackson object mapper available via the JacksonJtsMapperFactory.
  * <p>
@@ -284,7 +280,7 @@ public class JtsDocument {
             return String.valueOf( renderTime( (DateTime) value, timezone, format ) );
         else if( value instanceof String )
             return documentFormat.getTextQualifier() + value + documentFormat.getTextQualifier();
-        else if( value instanceof ComplexValue )
+        else if( value instanceof ComplexValue)
             return ( (ComplexValue) value ).toDelimitedText( documentFormat.getDelimiter(), documentFormat.getTextQualifier() );
         else
             return String.valueOf( value );

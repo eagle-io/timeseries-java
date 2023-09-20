@@ -8,6 +8,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import io.eagle.util.Assert;
 import io.eagle.util.DataType;
+import io.eagle.util.jackson.JacksonUtil;
+import io.eagle.util.jts.complex.Time;
 import io.eagle.util.time.JodaTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * A single record of the JSON Time Series document specification, defined as a timestamp and a fields mapping of index => {@link JtsField}
+ * A single record of the JSON Time Series document specification, defined as a timestamp and a fields mapping of index to {@link JtsField}
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
  */
@@ -55,7 +57,7 @@ public class JtsRecord<T> {
         else if( ts instanceof Number )
             this.ts = new DateTime( ts, DateTimeZone.UTC );
         else if( ts instanceof Map )
-            this.ts = (DateTime) JtsField.parseMapAsComplexValue( (Map<String, Object>) ts );
+            this.ts = JacksonUtil.getObjectMapper().convertValue(ts, Time.class).getValue();
         else
             throw new IllegalArgumentException( "Invalid timestamp format" );
 

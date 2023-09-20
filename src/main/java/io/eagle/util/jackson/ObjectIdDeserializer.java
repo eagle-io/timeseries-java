@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
  * @see JacksonUtil
- * @see EagleModule
  * @see ObjectIdSerializer
  */
 public final class ObjectIdDeserializer extends StdScalarDeserializer<ObjectId> {

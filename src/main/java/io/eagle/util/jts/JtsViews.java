@@ -5,6 +5,8 @@ public class JtsViews {
     public static class JtsView {
     }
 
+    // JtsDocument
+
     public static class Document extends JtsView {
     }
 
@@ -19,5 +21,6 @@ public class JtsViews {
 
     public static class DocumentAndHeaderAndData extends DocumentAndData {
     }
+
 
 }

@@ -102,7 +102,6 @@ public class JtsColumnHeader {
      *
      * @param id          MongoDB _id of the column
      * @param name        name of the column
-     * @param description description of the column
      * @param datatype    dataType of the column
      * @param agggregate  aggregate type of the column
      * @param format      format of the column
@@ -149,7 +148,6 @@ public class JtsColumnHeader {
      * Returns this JtsColumnHeader as a JSON string.
      *
      * @return this JtsColumnHeader as a JSON formatted string
-     * @throws JsonProcessingException if there is an error writing this JtsColumnHeader as a JSON string
      */
     public String toJson() {
         return JacksonUtil.toJson(this);

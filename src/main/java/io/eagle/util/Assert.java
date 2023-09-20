@@ -46,7 +46,7 @@ import java.util.function.Supplier;
  *
  * <pre class="code">
  * Assert.notNull(clazz, "The class must not be null");
- * Assert.isTrue(i > 0, "The value must be greater than zero");</pre>
+ * </pre>
  *
  * <p>Mainly for internal use within the framework; for a more comprehensive suite
  * of assertion utilities consider {@code org.apache.commons.lang3.Validate} from

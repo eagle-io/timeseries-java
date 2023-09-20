@@ -7,8 +7,9 @@ import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableMap;
-import io.eagle.util.ComplexValue;
 import io.eagle.util.jackson.JacksonUtil;
+import io.eagle.util.jts.complex.ComplexValue;
+import io.eagle.util.jts.complex.Time;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -89,11 +90,11 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                 tsValue = String.valueOf(ts.withZone(this.dateTimeZone));
                 jgen = jgen.setPrettyPrinter(minimalPrettyPrinter);
             } else {
-                tsValue = ImmutableMap.of(ComplexValue.TIME_MILLIS_KEY, ts.getMillis());
+                tsValue = ImmutableMap.of(Time.MILLIS_KEY, ts.getMillis());
             }
 
             if (this.documentFormat.getDocumentSubType() == DocumentSubType.WINDROSE)
-                tsValue = ImmutableMap.of(ComplexValue.WIND_DIR_KEY, ts.getMillis());
+                tsValue = ImmutableMap.of("$winddir", ts.getMillis());
 
             jgen.writeStartObject();
             jgen.writeObjectField("ts", tsValue);
@@ -116,15 +117,18 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                         if (field.getValue() instanceof DateTime) {
                             if (this.documentFormat.isPretty()) {
                                 String tsString = String.valueOf(JtsDocument.renderTime(ts, this.dateTimeZone, format));
-                                jgen.writeObjectField("v", ImmutableMap.of(ComplexValue.TIME_ISO_KEY, tsString));
+                                jgen.writeObjectField("v", ImmutableMap.of(Time.TIME_KEY, tsString));
                             } else {
-                                jgen.writeObjectField("v", ImmutableMap.of(ComplexValue.TIME_MILLIS_KEY, field.getValueAsDateTime().getMillis()));
+                                jgen.writeObjectField("v", ImmutableMap.of(Time.MILLIS_KEY, field.getValueAsDateTime().getMillis()));
                             }
                         } else if (field.getValue() instanceof Double) {
                             jgen.writeFieldName("v");
                             jgen.writeNumber(value);
                         } else if (field.getValue() instanceof String) {
                             // Text qualifiers should be ignored for JSON so we ignore the rendered value
+                            jgen.writeObjectField("v", field.getValue());
+                        } else if (field.getValue() instanceof ComplexValue) {
+                            // ComplexValues should be serialized as an object with embedded type identifier
                             jgen.writeObjectField("v", field.getValue());
                         } else
                             jgen.writeObjectField("v", value);

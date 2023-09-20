@@ -131,9 +131,9 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
 
 
     /**
-     * Parameter constructor which puts the given mapping of {@link DateTime} => {@link JtsField} into the specified column.
+     * Parameter constructor which puts the given mapping of {@link DateTime} to {@link JtsField} into the specified column.
      *
-     * @param records the mapping of {@link DateTime} => {@link JtsField} to put into the table column, never null
+     * @param records the mapping of {@link DateTime} to {@link JtsField} to put into the table column, never null
      */
     public JtsTable( final SortedMap<DateTime, JtsField> records ) {
         this();
@@ -613,13 +613,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     /**
-     * Returns an unmodifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
+     * Returns an unmodifiable view of the specified column (represented as a mapping of DateTime to JtsField), or an empty map if the
      * column does not exist in the table.
      * <p>
      * If a modifiable view is required, use {@link #getColumnModifiable(Integer)} instead.
      *
      * @param column the number of the column to return
-     * @return an unmodifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
+     * @return an unmodifiable view of the specified column (represented as a mapping of DateTime to JtsField), or an empty map if the
      * column does not exist in the table
      */
     public SortedMap<DateTime, JtsField> getColumn( final Integer column ) {
@@ -634,7 +634,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * Returns an unmodifiable view of the specified column, but only including values which occur after the specified start time
      * (exclusive); if the column does not exist in the table, or if the start time is null, an empty map is returned.
      * <p>
-     * The returned view is represented as a mapping of DateTime => JtsField. If a modifiable view is required, use
+     * The returned view is represented as a mapping of DateTime to JtsField. If a modifiable view is required, use
      * {@link #getColumnModifiableAfter(Integer, DateTime)} instead.
      *
      * @param column the number of the column to return
@@ -657,7 +657,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * Returns an unmodifiable view of the specified column, but only including values which occur before the specified end time
      * (exclusive); if the column does not exist in the table, or if the end time is null, an empty map is returned.
      * <p>
-     * The returned view is represented as a mapping of DateTime => JtsField.
+     * The returned view is represented as a mapping of DateTime to JtsField.
      * <p>
      * If a modifiable view is required, use {@link #getColumnModifiableBefore(Integer, DateTime)} instead.
      *
@@ -689,7 +689,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * <p>
      * If the column does not exist in the table, returns an empty map.
      * <p>
-     * The returned view is represented as a mapping of DateTime => JtsField.
+     * The returned view is represented as a mapping of DateTime to JtsField.
      *
      * @param column the number of the column to return
      * @param start  only return values which occur after this time (inclusive), may be null
@@ -833,13 +833,13 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     /**
-     * Returns a modifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
+     * Returns a modifiable view of the specified column (represented as a mapping of DateTime to JtsField), or an empty map if the
      * column does not exist in the table.
      * <p>
      * If an unmodifiable view is required, use {@link #getColumn(Integer)} instead.
      *
      * @param column the number of the column to return
-     * @return a modifiable view of the specified column (represented as a mapping of DateTime => JtsField), or an empty map if the
+     * @return a modifiable view of the specified column (represented as a mapping of DateTime to JtsField), or an empty map if the
      * column does not exist in the table
      */
     public SortedMap<DateTime, JtsField> getColumnModifiable( final Integer column ) {
@@ -872,7 +872,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * Returns a modifiable view of the specified column, but only including values which occur after the specified start time
      * (exclusive); if the column does not exist in the table, an empty map is returned.
      * <p>
-     * The returned view is represented as a mapping of DateTime => JtsField.
+     * The returned view is represented as a mapping of DateTime to JtsField.
      * <p>
      * If an unmodifiable view is required, use {@link #getColumnAfter(Integer, DateTime)} instead.
      *
@@ -892,7 +892,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      * Returns a modifiable view of the specified column, but only including values which occur before the specified end time
      * (exclusive); if the column does not exist in the table, an empty map is returned.
      * <p>
-     * The returned view is represented as a mapping of DateTime => JtsField.
+     * The returned view is represented as a mapping of DateTime to JtsField.
      * <p>
      * If an unmodifiable view is required, use {@link #getColumnBefore(Integer, DateTime)} instead.
      *
@@ -972,12 +972,12 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     /**
-     * Returns the {@link JtsField} values in the record specified by the given timestamp, as a mapping of column => JtsField.
+     * Returns the {@link JtsField} values in the record specified by the given timestamp, as a mapping of column to JtsField.
      * <p>
      * If there are no records matching the timestamp, an empty map is returned
      *
      * @param ts the timestamp of the record, never null
-     * @return the {@link JtsField} values in the record specified by the given timestamp, as a mapping of column => JtsField; if there are
+     * @return the {@link JtsField} values in the record specified by the given timestamp, as a mapping of column to JtsField; if there are
      * no records matching the timestamp, an empty map is returned
      */
     public Map<Integer, JtsField> getFields( final DateTime ts ) {
@@ -1081,7 +1081,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     }
 
     /**
-     * Returns an unmodifiable time ordered map of all records in the table, as a mapping of timestamp => column => {@link JtsField}.
+     * Returns an unmodifiable time ordered map of all records in the table, as a mapping of timestamp to column to {@link JtsField}.
      *
      * @return an unmodifiable time ordered map of all records in the table
      */

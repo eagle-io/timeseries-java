@@ -17,11 +17,13 @@ public class JacksonUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JacksonUtil.class);
 
+    private static ObjectMapper EAGLE_OBJECT_MAPPER = new EagleObjectMapper();
+
     /**
      * Builds and returns a Jackson {@link ObjectMapper}.
      */
     public static ObjectMapper getObjectMapper() {
-        return new EagleObjectMapper();
+        return EAGLE_OBJECT_MAPPER;
     }
 
 
@@ -124,7 +126,7 @@ public class JacksonUtil {
 
 
     /**
-     * Converts a JSON string to a Map<String,Object>.
+     * Converts a JSON string to a {@code Map<String,Object>}.
      *
      * @param json the JSON string to convert into a map
      * @return the deserialized object

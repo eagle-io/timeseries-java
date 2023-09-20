@@ -1,6 +1,8 @@
 package io.eagle.util;
 
 import io.eagle.util.geo.Coordinates;
+import io.eagle.util.jts.complex.Metrics;
+import io.eagle.util.jts.complex.Time;
 import org.joda.time.DateTime;
 
 
@@ -28,12 +30,14 @@ public enum DataType {
     /**
      * Date and time
      */
-    TIME(DateTime.class),
+    TIME(Time.class),
 
     /**
      * Geospatial coordinates (latitude and longitude)
      */
-    COORDINATES(Coordinates.class);
+    COORDINATES(Coordinates.class),
+
+    METRICS(Metrics.class);
 
     private final Class<?> classType;
 

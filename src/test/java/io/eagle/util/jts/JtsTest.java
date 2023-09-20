@@ -130,16 +130,17 @@ public class JtsTest {
 
     @Test
     public void testJtsCreator() throws Exception {
-        String json = generateRandomTestData( 3, 5, 864, jan1st ).toJson();
+        String json = generateRandomTestData( 3, 5, 864, jan1st ).toJsonPretty();
         JtsDocument jts = null;
 
         try {
+            logger.info("JSON: {}", json);
             jts = JtsDocument.readJsonFromString( json );
         } catch( Exception e ) {
             logger.debug( e.toString() );
         }
 
-        logger.info( jts.toString() );
+        logger.info( "JTS: {}", jts );
     }
 
 

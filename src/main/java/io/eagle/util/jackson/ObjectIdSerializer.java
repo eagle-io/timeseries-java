@@ -15,7 +15,6 @@ import java.io.IOException;
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
  * @see JacksonUtil
- * @see EagleModule
  * @see ObjectIdDeserializer
  */
 public final class ObjectIdSerializer extends StdScalarSerializer<ObjectId> {

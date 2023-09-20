@@ -7,29 +7,28 @@ import java.util.EnumSet;
  * Defines aggregate types, including groupings of types.
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
- * @see Aggregate
  */
 public enum AggregateType {
     INTERPOLATED,
 
     /**
-     * Average type; the average value derived from the count and total of raw values in the aggregate; included in the {@link #ALL} type
+     * Average type; the average value derived from the count and total of raw values in the aggregate
      */
     AVERAGE,
 
     /**
-     * Total type; the sum of raw values in the aggregate; included in the {@link #ALL} type
+     * Total type; the sum of raw values in the aggregate
      */
     TOTAL,
 
     /**
-     * Minimum type; the smallest of raw values in the aggregate; included in the {@link #ALL} type
+     * Minimum type; the smallest of raw values in the aggregate
      */
     MIN,
     MINIMUM,
 
     /**
-     * Maximum type; the largest of raw values in the aggregate; included in the {@link #ALL} type
+     * Maximum type; the largest of raw values in the aggregate
      */
     MAX,
     MAXIMUM,
@@ -37,7 +36,7 @@ public enum AggregateType {
     RANGE,
 
     /**
-     * Count type; the total number of raw values in the aggregate; included in the {@link #ALL} type
+     * Count type; the total number of raw values in the aggregate
      */
     COUNT,
 
@@ -46,7 +45,7 @@ public enum AggregateType {
     END,
 
     /**
-     * Delta type; derived from subtracting the first raw value from the last raw value; <b>NOT included in the {@link #ALL} type</b>
+     * Delta type; derived from subtracting the first raw value from the last raw value
      */
     DELTA,
 
@@ -57,7 +56,7 @@ public enum AggregateType {
     MEDIAN,
 
     /**
-     * None type; represents no aggregate calculation (i.e. a raw value); <b>NOT included in the {@link #ALL} type</b>
+     * None type; represents no aggregate calculation (i.e. a raw value)
      */
     NONE;
 

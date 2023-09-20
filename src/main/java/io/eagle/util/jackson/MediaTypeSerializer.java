@@ -15,7 +15,6 @@ import java.io.IOException;
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
  * @see JacksonUtil
- * @see EagleModule
  * @see ObjectIdDeserializer
  */
 public final class MediaTypeSerializer extends StdScalarSerializer<MediaType> {
@@ -35,12 +34,6 @@ public final class MediaTypeSerializer extends StdScalarSerializer<MediaType> {
     }
 
 
-    /**
-     * Serializes the given {@link ObjectId} to JSON.
-     *
-     * @see com.fasterxml.jackson.databind.ser.std.StdSerializer#serialize(java.lang.Object, com.fasterxml.jackson.core.JsonGenerator,
-     * com.fasterxml.jackson.databind.SerializerProvider)
-     */
     @Override
     public void serialize(MediaType value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeString(value.toString());

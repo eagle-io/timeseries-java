@@ -1,22 +1,16 @@
 package io.eagle.util.jts;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.eagle.util.Assert;
-import io.eagle.util.BitBuddy;
-import io.eagle.util.ComplexValue;
-import io.eagle.util.DataType;
-import io.eagle.util.geo.Coordinates;
-import io.eagle.util.time.JodaTime;
+import com.fasterxml.jackson.annotation.*;
+import io.eagle.util.*;
+import io.eagle.util.jackson.JacksonUtil;
+import io.eagle.util.jts.complex.ComplexValue;
 import org.bson.BasicBSONObject;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -38,14 +32,13 @@ import java.util.Objects;
  * <li>a {@link Number} will be converted to a {@link Double}
  * <li>a {@link Boolean} will be converted to a {@link Double}
  * <li>a {@link Date}, and a {@link Double} may be set as a {@link Number}
- * <li>a {@link Map} of String => Object will be converted to either {@link DateTime} or {@link ComplexValue} after being parsed by
- * {@link #parseMapAsComplexValue(Map)}
+ * <li>a {@link Map} of String to Object will be converted to either {@link DateTime} or {@link ComplexValue} after being parsed by
  * <li>a {@link BasicBSONObject} will be converted to either {@link DateTime} or {@link ComplexValue} after being parsed by
- * {@link #parseMapAsComplexValue(Map)}
  * </ul>
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
  */
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public final class JtsField {
 
     public final static JtsField EMPTY_FIELD = new JtsField();
@@ -66,17 +59,17 @@ public final class JtsField {
      * <li>{@link ComplexValue}
      * </ol>
      */
-    private final JtsAttribute<Object> v = new JtsAttribute<>();
+    private Optional<Object> v;
 
     /**
      * An optional code representing quality information for this field
      */
-    private final JtsAttribute<Integer> q = new JtsAttribute<>();
+    private Optional<Integer> q;
 
     /**
      * An optional text description for this field
      */
-    private final JtsAttribute<String> a = new JtsAttribute<>();
+    private Optional<String> a;
 
     /**
      * An optional timestamp when this field was last modified
@@ -89,56 +82,25 @@ public final class JtsField {
     public JtsField() {
     }
 
-
     /**
      * Copy constructor.
      *
      * @param other the JtsField to copy from
      */
     public JtsField( JtsField other ) {
-        if( other.v.isPresent() )
-            this.v.setAttribute( parseValue( other.v.getAttribute() ) );
-
-        if( other.q.isPresent() )
-            this.q.setAttribute( other.q.getAttribute() );
-
-        if( other.a.isPresent() )
-            this.a.setAttribute( other.a.getAttribute() );
-
+        this.v = other.v;
+        this.q = other.q;
+        this.a = other.a;
         this.m = other.m;
     }
 
-
-    @JsonCreator
-    public JtsField( Map<String, Object> attributes ) {
-        if( attributes == null )
-            return;
-
-        attributes.forEach( ( key, value ) -> {
-            switch( key ) {
-                case "v":
-                    this.v.setAttribute( parseValue( value ) );
-                    break;
-                case "q":
-                    this.q.setAttribute( (Integer) value );
-                    break;
-                case "a":
-                    this.a.setAttribute( (String) value );
-                    break;
-            }
-        } );
-
-    }
-
-
     public JtsField( Object value ) {
-        this.v.setAttribute( parseValue( value ) );
+        this(value, null, null, null);
     }
 
 
     public JtsField( Object value, Integer quality ) {
-        this.v.setAttribute( parseValue( value ) );
-        this.q.setAttribute( quality );
+        this(value, quality, null, null);
     }
 
 
@@ -148,30 +110,46 @@ public final class JtsField {
 
 
     public JtsField( Object value, Integer quality, String annotation, DateTime modifiedTime ) {
-        this.v.setAttribute( parseValue( value ) );
-        this.q.setAttribute( quality );
-        this.a.setAttribute( annotation );
+        if( value != null ) this.v = Optional.of(parseValue(value));
+        if( quality != null ) this.q = Optional.of(quality);
+        if( annotation != null ) this.a = Optional.of(annotation);
         this.m = modifiedTime;
     }
 
-
-    /**
-     * Parameter constructor which sets the quality only (the value is set to {@code null}).
-     *
-     * @param quality the quality
-     */
     public JtsField( SystemQuality quality ) {
-        this.q.setAttribute( quality.getCode() );
+        this.q = Optional.of( quality.getCode() );
     }
 
 
     public JtsField( Object value, SystemQuality quality ) {
-        this.v.setAttribute( value );
-        this.q.setAttribute( quality.getCode() );
+        this.v = Optional.of( value );
+        this.q = Optional.of( quality.getCode() );
     }
 
     public static JtsField of( Object value ) {
         return new JtsField( value );
+    }
+
+    @JsonCreator
+    public JtsField( Map<String, Object> attributes ) {
+        if( attributes.containsKey("v") ) this.v = Optional.ofNullable(parseValue(attributes.get("v")));
+        if( attributes.containsKey("q") ) this.q = Optional.ofNullable((Integer) attributes.get("q"));
+        if( attributes.containsKey("a") ) this.a = Optional.ofNullable((String) attributes.get("a"));
+    }
+
+    /**
+     * Strangely (perhaps due to type erasure?), fields of type Object (e.g. 'v') ignore type framing rules (e.g. {$coords: [35.1, 151.2]}.
+     * Here we manually apply the ObjectMapper conversion to enforce type framing.
+     */
+    @JsonProperty("v")
+    public Object toJsonValue() {
+        if( this.v == null ) {
+            return null;
+        } else if( this.v.isPresent() ) {
+            return JacksonUtil.getObjectMapper().convertValue(this.v.get(), Object.class);
+        } else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -187,71 +165,17 @@ public final class JtsField {
         else if( value instanceof Date )
             return new DateTime( value, DateTimeZone.UTC );
         else if( value instanceof Map )        // Map parsed as ComplexType, e.g. {"$coords": [-35.0,153.4]}
-            return parseMapAsComplexValue( (Map<String, Object>) value );
+            return JacksonUtil.getObjectMapper().convertValue(value, ComplexValue.class);
         else if( value == null )
             return null;
         else
             throw new IllegalStateException( String.format( "Unable to convert value '%s' of class '%s' to JtsField value", value, value.getClass().getName() ) );
     }
 
-    /**
-     * Parses a Map containing a {@link ComplexValue} which is defined by the map key.
-     *
-     * @param complexValueMap the Map containing a {@link ComplexValue} defined by the map key
-     * @return the Object which is the Map value; either {@link DateTime} or {@link ComplexValue}
-     */
-    @SuppressWarnings("unchecked")
-    public static Object parseMapAsComplexValue( Map<String, Object> complexValueMap ) {
-        Object value;
-
-        if( complexValueMap.containsKey( ComplexValue.TIME_MILLIS_KEY ) ) {
-            /*
-             * The ComplexValue.DATE_KEY means the map value is a DateTime expressed as milliseconds
-             * e.g. "$date" => 123456789
-             */
-            value = complexValueMap.get( ComplexValue.TIME_MILLIS_KEY );
-            Assert.isInstanceOf( Number.class, value );
-            value = new DateTime( ( (Number) value ).longValue(), DateTimeZone.UTC );
-        } else if( complexValueMap.containsKey( ComplexValue.TIME_ISO_KEY ) ) {
-            /*
-             * The ComplexValue.DATE_ISO_KEY means the map value is a DateTime expressed as an ISO8601 String
-             * e.g. "$dateiso" => "2014-06-09T10:20:30-08:00"
-             */
-            value = complexValueMap.get( ComplexValue.TIME_ISO_KEY );
-            Assert.isInstanceOf( String.class, value );
-            value = JodaTime.parseDateTimeISO( (String) value );
-        } else if( complexValueMap.containsKey( ComplexValue.COORDS_KEY ) ) {
-            // The Coordinates.COMPLEX_KEY means the map value is a Coordinates expressed as List of Numbers, e.g. $coords => [ 1234, 5678 ]
-            value = complexValueMap.get( ComplexValue.COORDS_KEY );
-            Assert.isInstanceOf( List.class, value );
-            value = new Coordinates( (List<Number>) value );
-        } else if( complexValueMap.containsKey( ComplexValue.WIND_DIR_KEY ) ) {
-            value = complexValueMap.get( ComplexValue.WIND_DIR_KEY );
-            Assert.isInstanceOf( Number.class, value );
-            value = new DateTime( ( (Number) value ).longValue(), DateTimeZone.UTC );
-        } else {
-            // Any other type is an exception
-            throw new IllegalStateException( "Unable to parse complex type: " + complexValueMap.keySet() );
-        }
-
-        return value;
-    }
-
     public void merge( JtsField other ) {
-        if( other.v.getAttribute() != null )
-            this.v.setAttribute( other.v.getAttribute() );
-        else if( other.v.isPresent() )
-            this.v.setAttribute( null );
-
-        if( other.q.getAttribute() != null )
-            this.q.setAttribute( other.q.getAttribute() );
-        else if( other.q.isPresent() )
-            this.q.setAttribute( null );
-
-        if( other.a.getAttribute() != null )
-            this.a.setAttribute( other.a.getAttribute() );
-        else if( other.a.isPresent() )
-            this.a.setAttribute( null );
+        if( other.v != null ) this.v = other.v;
+        if( other.q != null ) this.q = other.q;
+        if( other.a != null ) this.a = other.a;
 
         if( this.m == null )
             this.m = other.m;
@@ -260,34 +184,22 @@ public final class JtsField {
     }
 
     public void setAttributes( JtsField other ) {
-        if( other.v.isPresent() )
-            this.v.setAttribute( parseValue( other.v.getAttribute() ) );
-        else
-            this.v.clear();
-
-        if( other.q.isPresent() )
-            this.q.setAttribute( other.q.getAttribute() );
-        else
-            this.q.clear();
-
-        if( other.a.isPresent() )
-            this.a.setAttribute( other.a.getAttribute() );
-        else
-            this.a.clear();
-
+        this.v = other.v;
+        this.q = other.q;
+        this.a = other.a;
         this.m = other.m;
     }
 
     public boolean hasValue() {
-        return this.v.isPresent();
+        return this.v   != null && this.v.isPresent();
     }
 
     public boolean hasQuality() {
-        return this.q.isPresent();
+        return this.q != null && this.q.isPresent();
     }
 
     public boolean hasAnnotation() {
-        return this.a.isPresent();
+        return this.a != null && this.a.isPresent();
     }
 
     @Override
@@ -309,7 +221,7 @@ public final class JtsField {
     public boolean isDeleted() {
         // Assert.isNull( this.v.getAttribute(), "Field marked for deletion must have null value" );
         // Assert.isNull( this.a.getAttribute(), "Field marked for deletion must have null annotation" );
-        return SystemQuality.DELETE.getCode().equals( this.q.getAttribute() );
+        return this.q != null && SystemQuality.DELETE.getCode().equals( this.q.orElseGet(null) );
     }
 
     /**
@@ -318,12 +230,12 @@ public final class JtsField {
      * @return the quality
      */
     public Integer getQuality() {
-        if( this.q.getAttribute() == null )
+        if( this.q == null || ! this.q.isPresent() )
             return null;
-        else if( this.q.getAttribute() < 0 )
-            return this.q.getAttribute();
+        else if( this.q.get() < 0 )
+            return this.q.get();
         else
-            return BitBuddy.getRight( this.q.getAttribute() );
+            return BitBuddy.getRight( this.q.get() );
     }
 
     /**
@@ -333,7 +245,7 @@ public final class JtsField {
      * @return the value
      */
     public Object getValue() {
-        return this.v.getAttribute();
+        return this.v == null ? null : this.v.get();
     }
 
     /**
@@ -344,18 +256,18 @@ public final class JtsField {
      *              {@link BasicBSONObject}, or null
      */
     public void setValue( Object value ) {
-        this.v.setAttribute( parseValue( value ) );
+        this.v = Optional.of( parseValue( value ) );
     }
 
     /**
      * @return the {@link ComplexValue} value, or null if the value is null
      */
     public ComplexValue getValueAsComplexValue() {
-        if( this.v.getAttribute() == null )
+        if( this.v == null || ! this.v.isPresent() )
             return null;
         else {
-            Assert.isInstanceOf( ComplexValue.class, this.v.getAttribute() );
-            return (ComplexValue) this.v.getAttribute();
+            Assert.isInstanceOf( ComplexValue.class, this.v.get() );
+            return (ComplexValue) this.v.get();
         }
     }
 
@@ -363,11 +275,11 @@ public final class JtsField {
      * @return the {@link DateTime} value, or null if the value is null
      */
     public DateTime getValueAsDateTime() {
-        if( this.v.getAttribute() == null )
+        if( this.v == null || ! this.v.isPresent() )
             return null;
         else {
-            Assert.isInstanceOf( DateTime.class, this.v.getAttribute() );
-            return (DateTime) this.v.getAttribute();
+            Assert.isInstanceOf( DateTime.class, this.v.get() );
+            return (DateTime) this.v.get();
         }
     }
 
@@ -375,11 +287,11 @@ public final class JtsField {
      * @return the {@link Double} value, or null if the value is null
      */
     public Double getValueAsDouble() {
-        if( this.v.getAttribute() == null )
+        if( this.v == null || ! this.v.isPresent() )
             return null;
         else {
-            Assert.isInstanceOf( Double.class, this.v.getAttribute() );
-            return (Double) this.v.getAttribute();
+            Assert.isInstanceOf( Double.class, this.v.get() );
+            return (Double) this.v.get();
         }
     }
 
@@ -387,20 +299,23 @@ public final class JtsField {
      * @return the {@link String} value, or null if the value is null
      */
     public String getValueAsString() {
-        if( this.v.getAttribute() == null )
+        if( this.v == null || ! this.v.isPresent() )
             return null;
         else {
-            Assert.isInstanceOf( String.class, this.v.getAttribute() );
-            return (String) this.v.getAttribute();
+            Assert.isInstanceOf( String.class, this.v.get() );
+            return (String) this.v.get();
         }
     }
 
     public String getAnnotation() {
-        return this.a.getAttribute();
+        if( this.a == null || ! this.a.isPresent() )
+            return null;
+        else
+            return this.a.get();
     }
 
     public void setAnnotation( String annotation ) {
-        this.a.setAttribute( annotation );
+        this.a = Optional.ofNullable( annotation );
     }
 
     public DateTime getModifiedTime() {
@@ -412,15 +327,18 @@ public final class JtsField {
     }
 
     public DataType getDataType() {
-        return DataType.getDataType( this.v.getAttribute() );
+        if( this.v != null && this.v.isPresent() )
+            return DataType.getDataType( this.v.get() );
+        else
+            return null;
     }
 
     /**
      * @return true if the quality has the system quality bit set; false if the system quality bit is not set, or if the quality is null
      */
     public boolean hasSystemQuality() {
-        if( this.q.getAttribute() != null )
-            return BitBuddy.getBit( this.q.getAttribute(), SYSTEM_QUALITY );
+        if( this.q != null && this.q.isPresent() )
+            return BitBuddy.getBit( this.q.get(), SYSTEM_QUALITY );
         else
             return false;
     }
@@ -431,7 +349,7 @@ public final class JtsField {
      * @param quality the combined quality value
      */
     public void setCombinedQuality( Integer quality ) {
-        this.q.setAttribute( quality );
+        this.q = Optional.ofNullable( quality );
     }
 
     /**
@@ -448,7 +366,7 @@ public final class JtsField {
         quality = BitBuddy.setRight( quality, systemQuality );
         quality = BitBuddy.setBit( quality, SYSTEM_QUALITY );
 
-        this.q.setAttribute( quality );
+        this.q = Optional.ofNullable( quality );
     }
 
     /**
@@ -458,7 +376,7 @@ public final class JtsField {
      */
     public void setUserQuality( Integer userQuality ) {
         if( userQuality == null ) {
-            this.q.setAttribute( null );
+            this.q = Optional.empty();
             return;
         }
 
@@ -469,19 +387,19 @@ public final class JtsField {
         quality = BitBuddy.setRight( quality, userQuality );
         quality = BitBuddy.clearBit( quality, SYSTEM_QUALITY );
 
-        this.q.setAttribute( quality );
+        this.q = Optional.ofNullable( quality );
     }
 
     public void clearValue() {
-        this.v.clear();
+        this.v = null;
     }
 
     public void clearQuality() {
-        this.q.clear();
+        this.q = null;
     }
 
     public void clearAnnotation() {
-        this.a.clear();
+        this.a = null;
     }
 
     public void clearModifiedTime() {
@@ -501,17 +419,16 @@ public final class JtsField {
      */
     @Override
     public String toString() {
-        String str = String.valueOf( this.v );
+        String str = this.v == null ? "null" : String.valueOf( this.v.get() );
 
-        if( this.q.getAttribute() != null )
+        if( this.q != null && this.q.isPresent() )
             str += ":" + this.q;
 
-        if( this.a.getAttribute() != null )
+        if( this.a != null && this.a.isPresent() )
             str += ";" + this.a;
 
         return str;
     }
-
 
     /**
      * @param quality
