@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.eagle"
-version = "1.0.11"
+version = "1.0.12"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("ch.qos.logback:logback-core:1.4.11")
     implementation("org.mongodb:bson:4.10.2")
     implementation("com.github.mfornos:humanize-slim:1.2.2")
     implementation("com.github.mfornos:humanize-joda:1.2.2")
