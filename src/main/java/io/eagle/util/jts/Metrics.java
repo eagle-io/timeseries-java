@@ -1,4 +1,4 @@
-package io.eagle.util.jts.complex;
+package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

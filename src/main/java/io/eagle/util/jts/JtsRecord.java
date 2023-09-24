@@ -9,7 +9,6 @@ import com.google.common.collect.HashBiMap;
 import io.eagle.util.Assert;
 import io.eagle.util.DataType;
 import io.eagle.util.jackson.JacksonUtil;
-import io.eagle.util.jts.complex.Time;
 import io.eagle.util.time.JodaTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

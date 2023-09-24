@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableMap;
 import io.eagle.util.jackson.JacksonUtil;
-import io.eagle.util.jts.complex.ComplexValue;
-import io.eagle.util.jts.complex.Time;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;

@@ -2,14 +2,11 @@ package io.eagle.util.geo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.eagle.util.Assert;
-import io.eagle.util.jts.complex.ComplexValue;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import io.eagle.util.jts.ComplexValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class Coordinates extends ComplexValue<List<Double>> {
 

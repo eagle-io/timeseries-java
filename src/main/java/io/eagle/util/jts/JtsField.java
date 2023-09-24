@@ -3,7 +3,6 @@ package io.eagle.util.jts;
 import com.fasterxml.jackson.annotation.*;
 import io.eagle.util.*;
 import io.eagle.util.jackson.JacksonUtil;
-import io.eagle.util.jts.complex.ComplexValue;
 import org.bson.BasicBSONObject;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

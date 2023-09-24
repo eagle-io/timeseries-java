@@ -11,7 +11,6 @@ import io.eagle.util.jackson.EagleObjectMapper;
 import io.eagle.util.jackson.JacksonUtil;
 import io.eagle.util.NumberFormat;
 import io.eagle.util.jts.JtsViews.*;
-import io.eagle.util.jts.complex.ComplexValue;
 import io.eagle.util.time.MomentTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

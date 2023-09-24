@@ -1,9 +1,8 @@
 package io.eagle.util;
 
 import io.eagle.util.geo.Coordinates;
-import io.eagle.util.jts.complex.Metrics;
-import io.eagle.util.jts.complex.Time;
-import org.joda.time.DateTime;
+import io.eagle.util.jts.Metrics;
+import io.eagle.util.jts.Time;
 
 
 /**
