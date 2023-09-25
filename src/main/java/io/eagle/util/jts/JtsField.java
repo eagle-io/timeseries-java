@@ -153,7 +153,7 @@ public final class JtsField {
 
     @SuppressWarnings("unchecked")
     private static Object parseValue( Object value ) {
-        if( value instanceof String || value instanceof DateTime || value instanceof ComplexValue )
+        if( value instanceof String || value instanceof ComplexValue )
             return value;
         else if( value instanceof Double )
             return Double.isNaN( (Double) value ) || Double.isInfinite( (Double) value ) ? null : value;
