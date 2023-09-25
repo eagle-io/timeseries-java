@@ -5,6 +5,8 @@ import com.google.common.collect.ComparisonChain;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.Date;
+
 public class Time extends ComplexValue<DateTime> {
     // time expressed as ISO8601 string
     public static final String TIME_KEY = "$time";
@@ -34,4 +36,8 @@ public class Time extends ComplexValue<DateTime> {
                 .result();
     }
 
+    @Override
+    public Date toBson() {
+        return this.value.toDate();
+    }
 }

@@ -8,6 +8,10 @@ import com.google.common.collect.ComparisonChain;
 import io.eagle.util.geo.Coordinates;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
+import org.bson.conversions.Bson;
+
 import java.util.Objects;
 
 /**
@@ -37,7 +41,7 @@ public abstract class ComplexValue<T> implements Comparable<ComplexValue<T>> {
         return this.value;
     }
 
-    public BSONObject toBson() {
+    public Object toBson() {
         return new BasicBSONObject(getKey(), this.value);
     }
 
