@@ -255,7 +255,7 @@ public final class JtsField {
      *              {@link BasicBSONObject}, or null
      */
     public void setValue( Object value ) {
-        this.v = Optional.of( parseValue( value ) );
+        this.v = Optional.ofNullable( parseValue( value ) );
     }
 
     /**
