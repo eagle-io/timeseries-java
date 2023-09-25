@@ -161,8 +161,10 @@ public final class JtsField {
             return ( (Number) value ).doubleValue();
         else if( value instanceof Boolean )    // Boolean converted to Double, e.g. true=1.0, false=0.0
             return (Boolean) value == true ? 1.0 : 0.0;
+        else if( value instanceof DateTime)
+            return new Time((DateTime) value);
         else if( value instanceof Date )
-            return new DateTime( value, DateTimeZone.UTC );
+            return new Time(new DateTime( value, DateTimeZone.UTC ));
         else if( value instanceof Map )        // Map parsed as ComplexType, e.g. {"$coords": [-35.0,153.4]}
             return JacksonUtil.getObjectMapper().convertValue(value, ComplexValue.class);
         else if( value == null )
