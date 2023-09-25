@@ -1,6 +1,8 @@
 package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,5 +32,12 @@ public class Metrics extends ComplexValue<List<Double>> {
     @Override
     public String getKey() {
         return METRICS_KEY;
+    }
+
+    @Override
+    public int compareTo(ComplexValue<List<Double>> other) {
+        return ComparisonChain.start()
+                .compare(this.value, other.value, Ordering.natural().lexicographical())
+                .result();
     }
 }

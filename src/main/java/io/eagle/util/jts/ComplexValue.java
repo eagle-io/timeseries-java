@@ -4,6 +4,7 @@ package io.eagle.util.jts;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ComparisonChain;
 import io.eagle.util.geo.Coordinates;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -20,7 +21,7 @@ import java.util.Objects;
         @JsonSubTypes.Type(name = Metrics.METRICS_KEY, value = Metrics.class),
         @JsonSubTypes.Type(names = {Time.TIME_KEY, Time.MILLIS_KEY}, value = Time.class)
 })
-public abstract class ComplexValue<T> {
+public abstract class ComplexValue<T> implements Comparable<ComplexValue<T>> {
 
     protected T value;
 

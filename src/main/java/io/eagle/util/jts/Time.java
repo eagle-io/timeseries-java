@@ -1,6 +1,7 @@
 package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.collect.ComparisonChain;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -24,6 +25,13 @@ public class Time extends ComplexValue<DateTime> {
     @Override
     public String getKey() {
         return TIME_KEY;
+    }
+
+    @Override
+    public int compareTo(ComplexValue<DateTime> other) {
+        return ComparisonChain.start()
+                .compare(this.value, other.value)
+                .result();
     }
 
 }

@@ -1,6 +1,7 @@
 package io.eagle.util.geo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.collect.ComparisonChain;
 import io.eagle.util.Assert;
 import io.eagle.util.jts.ComplexValue;
 import org.slf4j.Logger;
@@ -52,7 +53,13 @@ public class Coordinates extends ComplexValue<List<Double>> {
         Assert.state( Math.abs( longitude ) <= 180, "Longitude must be less than or equal to 180 degrees" );
     }
 
-
+    @Override
+    public int compareTo(ComplexValue<List<Double>> other) {
+        return ComparisonChain.start()
+                .compare(this.getLatitude(), other.getValue().get(0))
+                .compare(this.getLongitude(), other.getValue().get(1))
+                .result();
+    }
 
     /**
      * Returns a string representation of this Coordinates.
