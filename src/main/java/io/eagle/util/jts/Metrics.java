@@ -11,7 +11,7 @@ public class Metrics extends ComplexValue<List<Double>> {
     public static final String METRICS_KEY = "$metrics";
 
     @JsonCreator
-    public Metrics(List<Number> value) {
+    public Metrics(List<? extends Number> value) {
         super(value.stream()
                 .map((v) -> v.doubleValue())
                 .collect(Collectors.toList()));
