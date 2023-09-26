@@ -171,6 +171,9 @@ public class JtsRecord<T> {
         return this.f.containsKey( index );
     }
 
+    public boolean isEmpty() {
+        return this.f.isEmpty();
+    }
 
     public JtsField getField( final Integer index ) {
         return this.f.get( index );
