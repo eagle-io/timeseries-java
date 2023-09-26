@@ -1366,8 +1366,11 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
     public void putRecordById(JtsRecord<T> record) {
         Assert.notNull( record );
 
+        // Delete any existing record for this timestamp
+        this.table().row( record.getTimestamp() ).clear();
+
         for( T id: Sets.intersection(this.index.values(), record.getIndex().values()) ) {
-            this.put(record.getTimestamp(), id, record.getField(id));
+            put(record.getTimestamp(), id, record.getField(id));
         }
     }
 
