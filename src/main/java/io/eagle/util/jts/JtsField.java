@@ -222,7 +222,7 @@ public final class JtsField {
     public boolean isDeleted() {
         // Assert.isNull( this.v.getAttribute(), "Field marked for deletion must have null value" );
         // Assert.isNull( this.a.getAttribute(), "Field marked for deletion must have null annotation" );
-        return this.q != null && SystemQuality.DELETE.getCode().equals( this.q.orElseGet(null) );
+        return this.q != null && SystemQuality.DELETE.getCode().equals( this.q.orElse(null) );
     }
 
     /**
