@@ -112,12 +112,12 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                         String format = this.numberFormats != null && this.numberFormats.containsKey(index) ? this.numberFormats.get(index) : null;
                         String value = JtsDocument.renderValue(field.getValue(), format, this.documentFormat, this.dateTimeZone);
 
-                        if (field.getValue() instanceof DateTime) {
+                        if (field.getValue() instanceof Time) {
                             if (this.documentFormat.isPretty()) {
-                                String tsString = String.valueOf(JtsDocument.renderTime(ts, this.dateTimeZone, format));
+                                String tsString = String.valueOf(JtsDocument.renderTime(field.getValueAsTime().getValue(), this.dateTimeZone, format));
                                 jgen.writeObjectField("v", ImmutableMap.of(Time.TIME_KEY, tsString));
                             } else {
-                                jgen.writeObjectField("v", ImmutableMap.of(Time.MILLIS_KEY, field.getValueAsDateTime().getMillis()));
+                                jgen.writeObjectField("v", ImmutableMap.of(Time.MILLIS_KEY, field.getValueAsTime().getValue().getMillis()));
                             }
                         } else if (field.getValue() instanceof Double) {
                             jgen.writeFieldName("v");

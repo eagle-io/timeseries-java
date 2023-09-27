@@ -275,12 +275,12 @@ public final class JtsField {
     /**
      * @return the {@link DateTime} value, or null if the value is null
      */
-    public DateTime getValueAsDateTime() {
+    public Time getValueAsTime() {
         if( this.v == null || ! this.v.isPresent() )
             return null;
         else {
-            Assert.isInstanceOf( DateTime.class, this.v.get() );
-            return (DateTime) this.v.get();
+            Assert.isInstanceOf( Time.class, this.v.get() );
+            return (Time) this.v.get();
         }
     }
 
