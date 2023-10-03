@@ -109,20 +109,20 @@ public final class JtsField {
 
 
     public JtsField( Object value, Integer quality, String annotation, DateTime modifiedTime ) {
-        if( value != null ) this.v = Optional.of(parseValue(value));
-        if( quality != null ) this.q = Optional.of(quality);
-        if( annotation != null ) this.a = Optional.of(annotation);
+        if( value != null ) this.v = Optional.ofNullable(parseValue(value));
+        if( quality != null ) this.q = Optional.ofNullable(quality);
+        if( annotation != null ) this.a = Optional.ofNullable(annotation);
         this.m = modifiedTime;
     }
 
     public JtsField( SystemQuality quality ) {
-        this.q = Optional.of( quality.getCode() );
+        this.q = Optional.ofNullable( quality.getCode() );
     }
 
 
     public JtsField( Object value, SystemQuality quality ) {
-        this.v = Optional.of( value );
-        this.q = Optional.of( quality.getCode() );
+        this.v = Optional.ofNullable( value );
+        this.q = Optional.ofNullable( quality.getCode() );
     }
 
     public static JtsField of( Object value ) {
@@ -222,7 +222,7 @@ public final class JtsField {
     public boolean isDeleted() {
         // Assert.isNull( this.v.getAttribute(), "Field marked for deletion must have null value" );
         // Assert.isNull( this.a.getAttribute(), "Field marked for deletion must have null annotation" );
-        return this.q != null && SystemQuality.DELETE.getCode().equals( this.q.orElse(null) );
+        return this.q != null && this.q.isPresent() && SystemQuality.DELETE.getCode().equals( this.q.get() );
     }
 
     /**
@@ -246,7 +246,7 @@ public final class JtsField {
      * @return the value
      */
     public Object getValue() {
-        return this.v == null ? null : this.v.get();
+        return this.v == null ? null : this.v.orElse(null);
     }
 
     /**
@@ -264,11 +264,13 @@ public final class JtsField {
      * @return the {@link ComplexValue} value, or null if the value is null
      */
     public ComplexValue getValueAsComplexValue() {
-        if( this.v == null || ! this.v.isPresent() )
+        Object value = getValue();
+
+        if( value == null )
             return null;
         else {
-            Assert.isInstanceOf( ComplexValue.class, this.v.get() );
-            return (ComplexValue) this.v.get();
+            Assert.isInstanceOf( ComplexValue.class, value );
+            return (ComplexValue) value;
         }
     }
 
@@ -276,11 +278,13 @@ public final class JtsField {
      * @return the {@link DateTime} value, or null if the value is null
      */
     public Time getValueAsTime() {
-        if( this.v == null || ! this.v.isPresent() )
+        Object value = getValue();
+
+        if( value == null )
             return null;
         else {
-            Assert.isInstanceOf( Time.class, this.v.get() );
-            return (Time) this.v.get();
+            Assert.isInstanceOf( Time.class, value );
+            return (Time) value;
         }
     }
 
@@ -288,11 +292,13 @@ public final class JtsField {
      * @return the {@link Double} value, or null if the value is null
      */
     public Double getValueAsDouble() {
-        if( this.v == null || ! this.v.isPresent() )
+        Object value = getValue();
+
+        if( value == null )
             return null;
         else {
-            Assert.isInstanceOf( Double.class, this.v.get() );
-            return (Double) this.v.get();
+            Assert.isInstanceOf( Double.class, value );
+            return (Double) value;
         }
     }
 
@@ -300,19 +306,18 @@ public final class JtsField {
      * @return the {@link String} value, or null if the value is null
      */
     public String getValueAsString() {
-        if( this.v == null || ! this.v.isPresent() )
+        Object value = getValue();
+
+        if( value == null )
             return null;
         else {
-            Assert.isInstanceOf( String.class, this.v.get() );
-            return (String) this.v.get();
+            Assert.isInstanceOf( String.class, value );
+            return (String) value;
         }
     }
 
     public String getAnnotation() {
-        if( this.a == null || ! this.a.isPresent() )
-            return null;
-        else
-            return this.a.get();
+        return this.a == null ? null : this.a.orElse(null);
     }
 
     public void setAnnotation( String annotation ) {
@@ -329,7 +334,7 @@ public final class JtsField {
 
     public DataType getDataType() {
         if( this.v != null && this.v.isPresent() )
-            return DataType.getDataType( this.v.get() );
+            return DataType.getDataType( this.v.orElse(null) );
         else
             return null;
     }
@@ -339,7 +344,7 @@ public final class JtsField {
      */
     public boolean hasSystemQuality() {
         if( this.q != null && this.q.isPresent() )
-            return BitBuddy.getBit( this.q.get(), SYSTEM_QUALITY );
+            return BitBuddy.getBit( this.q.orElse(null), SYSTEM_QUALITY );
         else
             return false;
     }
