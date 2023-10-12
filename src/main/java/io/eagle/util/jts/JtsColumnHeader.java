@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -71,7 +72,7 @@ public class JtsColumnHeader {
 
     private DateTime baselineTime;
 
-    private List<String> metrics;
+    private Map<String, String> metrics;
 
     /**
      * Default constructor; looks useless because the fields are final, but in fact this is used by Jackson for object/JSON mapping.
@@ -257,7 +258,7 @@ public class JtsColumnHeader {
         return baselineTime;
     }
 
-    public List<String> getMetrics() {
+    public Map<String, String> getMetrics() {
         return metrics;
     }
 
@@ -274,7 +275,7 @@ public class JtsColumnHeader {
         private String units;
         private BaselineType baselineType;
         private DateTime baselineTime;
-        private List<String> metrics;
+        private Map<String, String> metrics;
 
         public Builder id(String id) {
             this.id = id;
@@ -341,7 +342,7 @@ public class JtsColumnHeader {
             return this;
         }
 
-        public Builder metrics(List<String> metrics) {
+        public Builder metrics(Map<String, String> metrics) {
             this.metrics = metrics;
             return this;
         }
