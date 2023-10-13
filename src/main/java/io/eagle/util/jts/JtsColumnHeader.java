@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -70,7 +71,7 @@ public class JtsColumnHeader {
 
     private DateTime baselineTime;
 
-    private List<MetricDef> metrics;
+    private Map<String, Object> metadata;
 
     /**
      * Default constructor; looks useless because the fields are final, but in fact this is used by Jackson for object/JSON mapping.
@@ -97,7 +98,7 @@ public class JtsColumnHeader {
         this.units = other.getUnits();
         this.baselineType = other.getBaselineType();
         this.baselineTime = other.getBaselineTime();
-        this.metrics = other.getMetrics();
+        this.metadata = other.getMetadata();
     }
 
 
@@ -136,7 +137,7 @@ public class JtsColumnHeader {
         this.units = builder.units;
         this.baselineType = builder.baselineType;
         this.baselineTime = builder.baselineTime;
-        this.metrics = builder.metrics;
+        this.metadata = builder.metadata;
     }
 
     /**
@@ -256,8 +257,8 @@ public class JtsColumnHeader {
         return baselineTime;
     }
 
-    public List<MetricDef> getMetrics() {
-        return metrics;
+    public Map<String, Object> getMetadata() {
+        return metadata;
     }
 
     public static class Builder {
@@ -273,7 +274,7 @@ public class JtsColumnHeader {
         private String units;
         private BaselineType baselineType;
         private DateTime baselineTime;
-        private List<MetricDef> metrics;
+        private  Map<String, Object>  metadata;
 
         public Builder id(String id) {
             this.id = id;
@@ -340,8 +341,8 @@ public class JtsColumnHeader {
             return this;
         }
 
-        public Builder metrics(List<MetricDef> metrics) {
-            this.metrics = metrics;
+        public Builder metadata(Map<String, Object> metadata) {
+            this.metadata = metadata;
             return this;
         }
 

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.eagle"
-version = "1.0.25"
+version = "1.0.26"
 
 repositories {
     mavenCentral()
