@@ -1,7 +1,6 @@
 package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.eagle.util.DataType;
 import io.eagle.util.jackson.JacksonUtil;
 import io.eagle.util.AggregateType;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -72,7 +70,7 @@ public class JtsColumnHeader {
 
     private DateTime baselineTime;
 
-    private Map<String, String> metrics;
+    private List<MetricDef> metrics;
 
     /**
      * Default constructor; looks useless because the fields are final, but in fact this is used by Jackson for object/JSON mapping.
@@ -258,7 +256,7 @@ public class JtsColumnHeader {
         return baselineTime;
     }
 
-    public Map<String, String> getMetrics() {
+    public List<MetricDef> getMetrics() {
         return metrics;
     }
 
@@ -275,7 +273,7 @@ public class JtsColumnHeader {
         private String units;
         private BaselineType baselineType;
         private DateTime baselineTime;
-        private Map<String, String> metrics;
+        private List<MetricDef> metrics;
 
         public Builder id(String id) {
             this.id = id;
@@ -342,7 +340,7 @@ public class JtsColumnHeader {
             return this;
         }
 
-        public Builder metrics(Map<String, String> metrics) {
+        public Builder metrics(List<MetricDef> metrics) {
             this.metrics = metrics;
             return this;
         }
