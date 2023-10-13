@@ -261,6 +261,10 @@ public class JtsColumnHeader {
         return metadata;
     }
 
+    public Object getMetadata(String key) {
+        return metadata.get(key);
+    }
+
     public static class Builder {
 
         private String id;
