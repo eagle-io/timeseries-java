@@ -265,6 +265,14 @@ public class JtsColumnHeader {
         return metadata.get(key);
     }
 
+    public <T> T getMetadata(String key, Class<T> clazz) {
+        if( this.metadata.containsKey(key) ) {
+            return clazz.cast(this.metadata.get(key));
+        } else {
+            return null;
+        }
+    }
+
     public static class Builder {
 
         private String id;
