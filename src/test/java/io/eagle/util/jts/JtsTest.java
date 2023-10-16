@@ -192,7 +192,7 @@ public class JtsTest {
 
         // Create column headers so the Double values will be formatted
         for( int k = 0; k < numColumns; k++ ) {
-            columns.put( k, new JtsColumnHeader( null, "Column_" + k, null, null, null, null, "#.##", null, null ) );
+            columns.put( k, new JtsColumnHeader( null, "Column_" + k, null, null, null, null, "#.##", null, null, null ) );
         }
 
         // Create a document header
@@ -304,9 +304,9 @@ public class JtsTest {
 
         SortedMap<Integer, JtsColumnHeader> columns = Maps.newTreeMap();
 
-        columns.put( 0, new JtsColumnHeader( new ObjectId().toString(), "Column 0", DataType.NUMBER, null, null, null, "#.##", null, null ) );
-        columns.put( 1, new JtsColumnHeader( new ObjectId().toString(), null, DataType.TEXT, null, null, null, null, null, null ) );
-        columns.put( 2, new JtsColumnHeader( new ObjectId().toString(), "Column 2", DataType.TIME, null, null, null, null, null, null ) );
+        columns.put( 0, new JtsColumnHeader( new ObjectId().toString(), "Column 0", DataType.NUMBER, null, null, null, "#.##", null, null, null ) );
+        columns.put( 1, new JtsColumnHeader( new ObjectId().toString(), null, DataType.TEXT, null, null, null, null, null, null, null ) );
+        columns.put( 2, new JtsColumnHeader( new ObjectId().toString(), "Column 2", DataType.TIME, null, null, null, null, null, null, null ) );
 
         JtsDocumentHeader header = new JtsDocumentHeader.Builder()
                 .startTime( RECORD_1_TIMESTAMP )

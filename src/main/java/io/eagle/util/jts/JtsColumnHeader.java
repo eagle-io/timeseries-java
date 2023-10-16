@@ -66,6 +66,7 @@ public class JtsColumnHeader {
     private DisplayType renderType;
 
     private String units;
+    private String metrics;
 
     private BaselineType baselineType;
 
@@ -96,6 +97,7 @@ public class JtsColumnHeader {
         this.format = other.getFormat();
         this.renderType = other.getRenderType();
         this.units = other.getUnits();
+        this.metrics = other.getMetrics();
         this.baselineType = other.getBaselineType();
         this.baselineTime = other.getBaselineTime();
         this.metadata = other.getMetadata();
@@ -112,7 +114,7 @@ public class JtsColumnHeader {
      * @param format      format of the column
      */
     public JtsColumnHeader(String id, String name, DataType datatype, AggregateType agggregate, Period period, String baseTime,
-                           String format, DisplayType renderType, String units) {
+                           String format, DisplayType renderType, String units, String metrics) {
         this.id = id;
         this.name = name;
         this.dataType = datatype;
@@ -122,6 +124,7 @@ public class JtsColumnHeader {
         this.format = format;
         this.renderType = renderType;
         this.units = units;
+        this.metrics = metrics;
     }
 
 
@@ -135,6 +138,7 @@ public class JtsColumnHeader {
         this.format = builder.format;
         this.renderType = builder.renderType;
         this.units = builder.units;
+        this.metrics = builder.metrics;
         this.baselineType = builder.baselineType;
         this.baselineTime = builder.baselineTime;
         this.metadata = builder.metadata;
@@ -249,6 +253,8 @@ public class JtsColumnHeader {
         return units;
     }
 
+    public String getMetrics() { return metrics; }
+
     public BaselineType getBaselineType() {
         return baselineType;
     }
@@ -284,6 +290,7 @@ public class JtsColumnHeader {
         private String format;
         private DisplayType renderType;
         private String units;
+        private String metrics;
         private BaselineType baselineType;
         private DateTime baselineTime;
         private  Map<String, Object>  metadata;
@@ -338,6 +345,11 @@ public class JtsColumnHeader {
 
         public Builder units(String units) {
             this.units = units;
+            return this;
+        }
+
+        public Builder metrics(String metrics) {
+            this.metrics = metrics;
             return this;
         }
 
