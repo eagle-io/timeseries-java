@@ -16,4 +16,6 @@ public interface JtsData {
     boolean isEmpty();
 
     int recordCount();
+
+    int fieldCount();
 }

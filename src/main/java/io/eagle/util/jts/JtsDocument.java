@@ -587,8 +587,12 @@ public class JtsDocument {
     /**
      * @return the number of records in this JtsDocument
      */
-    public int count() {
+    public int recordCount() {
         return isEmpty() ? 0 : this.data.recordCount();
+    }
+
+    public int fieldCount() {
+        return isEmpty() ? 0 : this.data.fieldCount();
     }
 
     /**
