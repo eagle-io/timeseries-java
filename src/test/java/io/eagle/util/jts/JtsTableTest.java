@@ -1507,7 +1507,7 @@ public class JtsTableTest {
 
     @Test
     public void testFieldCount() throws Exception {
-        assertEquals( FIELD_COUNT, this.masterTable.fieldCount().intValue(), "Table should contain '" + FIELD_COUNT + "' fields" );
+        assertEquals( FIELD_COUNT, this.masterTable.fieldCount(), "Table should contain '" + FIELD_COUNT + "' fields" );
     }
 
 

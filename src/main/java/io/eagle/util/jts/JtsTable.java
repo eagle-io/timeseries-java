@@ -1555,7 +1555,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
      *
      * @return the number of fields in the table
      */
-    public Integer fieldCount() {
+    public int fieldCount() {
         return this.table().size();
     }
 

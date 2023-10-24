@@ -32,6 +32,8 @@ public class JtsProfile implements JtsData {
         return this.table.rowKeySet().size();
     }
 
+    public int fieldCount() { return this.table.size(); }
+
     public Set<DateTime> getProfileTimes() {
         return this.table.columnKeySet();
     }
