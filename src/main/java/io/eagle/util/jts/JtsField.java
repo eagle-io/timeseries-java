@@ -425,7 +425,7 @@ public final class JtsField {
      */
     @Override
     public String toString() {
-        String str = this.v == null ? "null" : String.valueOf( this.v.get() );
+        String str = this.v != null && this.v.isPresent() ? String.valueOf( this.v.get() ) : "null";
 
         if( this.q != null && this.q.isPresent() )
             str += ":" + this.q;
