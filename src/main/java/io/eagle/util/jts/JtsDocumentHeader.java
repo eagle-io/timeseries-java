@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 import io.eagle.util.Assert;
 import io.eagle.util.jackson.JacksonUtil;
+import java.util.HashMap;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -56,6 +57,8 @@ public class JtsDocumentHeader {
      */
     private SortedMap<Integer, JtsColumnHeader> columns = Maps.newTreeMap();
 
+    private Map<String, Object> metadata;
+
 
     /**
      * Default constructor; looks useless because the fields are final, but in fact this is used by Jackson for object/JSON mapping.
@@ -73,6 +76,7 @@ public class JtsDocumentHeader {
         this.endTime = other.endTime;
         this.recordCount = other.recordCount;
         this.columns = new TreeMap<Integer, JtsColumnHeader>(other.columns);
+        this.metadata = new HashMap<>(other.metadata);
     }
 
 
@@ -98,6 +102,7 @@ public class JtsDocumentHeader {
         this.endTime = builder.endTime;
         this.recordCount = builder.recordCount;
         this.columns = builder.columns;
+        this.metadata = builder.metadata;
     }
 
     public JtsDocumentHeader withRecordCount(Integer recordCount) {
@@ -427,6 +432,22 @@ public class JtsDocumentHeader {
         }
     }
 
+    public Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    public Object getMetadata(String key) {
+        return metadata.get(key);
+    }
+
+    public <T> T getMetadata(String key, Class<T> clazz) {
+        if( this.metadata.containsKey(key) ) {
+            return clazz.cast(this.metadata.get(key));
+        } else {
+            return null;
+        }
+    }
+
     public static class Builder {
 
         private String id;
@@ -435,6 +456,7 @@ public class JtsDocumentHeader {
         private DateTime endTime;
         private Integer recordCount;
         private SortedMap<Integer, JtsColumnHeader> columns;
+        private Map<String, Object> metadata;
 
 
         public Builder id(String id) {
@@ -469,6 +491,11 @@ public class JtsDocumentHeader {
 
         public Builder columns(SortedMap<Integer, JtsColumnHeader> columns) {
             this.columns = columns;
+            return this;
+        }
+
+        public Builder metadata(Map<String, Object> metadata) {
+            this.metadata = metadata;
             return this;
         }
 
