@@ -91,7 +91,7 @@ object MomentTime {
                 if (token.endsWith("o")) {
                     var ordinalTimeUnit: Int? = null
 
-                    /* This is an ordinal token which is not supported by Joda, so detect the 
+                    /* This is an ordinal token which is not supported by Joda, so detect the
 					   time unit and include in the translated string as a rendered ordinal, e.g. 21st */ordinalTimeUnit =
                             if (token == "Mo") dateTime.monthOfYear else if (token == "Do") dateTime.dayOfMonth else if (token == "DDDo") dateTime.dayOfYear else if (token == "wo" || token == "Wo") dateTime.weekOfWeekyear else throw IllegalStateException(
                                     "Unhandled Moment.js ordinal token: $token"
@@ -161,14 +161,25 @@ object MomentTime {
             translated += if (tokenMap.containsKey(token)) {
                 // Token exists in our translation map, so append the related token
                 tokenMap[token]
-            } else if (token.matches("[^a-zA-Z]+".toRegex())) {
-                // Token is some other random character which does not need to be escaped, so just append
-                token
-            } else {
+            } else if(isAlphabetic(token)) {
                 // Token is a letter, so escape with literal qualifiers
                 JODA_LITERAL_START.toString() + token + JODA_LITERAL_END
+            } else {
+                // Token is some other random character which does not need to be escaped, so just append
+                token
             }
         }
+
         return translated
+    }
+
+    @JvmStatic
+    private fun isAlphabetic(str: String): Boolean {
+        for (i in str.indices) {
+            if (!Character.isLetter(str[i])) {
+                return false
+            }
+        }
+        return true
     }
 }
