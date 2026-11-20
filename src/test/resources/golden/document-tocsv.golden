@@ -1,0 +1,7 @@
+"Id","col0;Annotation","col1;Annotation",";Annotation",";Annotation",";Annotation"
+"Timestamp","Column 0;Annotation","Text;Annotation",";Annotation",";Annotation","Metrics;Annotation"
+"Units","m/s","","","",""
+2023-03-14T01:59:26.535+0000,12.35;first,"a/b \ "quoted" <tag> & é ✓ 😀 	
+ end";,[-33.8688, 151.2093];,2023-03-13T01:59:26.535Z;,[1.0, 2.5, -3.0];,;,;
+2023-03-14T02:04:26.535+0000,;,;,;,2009-02-13T23:31:30.123Z;,;,1.0;,;
+2023-03-14T02:59:26.535+0000,1000000000000000000000;,"";,;,;,;,;,-1.23456789E-4;annotated

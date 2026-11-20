@@ -1,0 +1,51 @@
+{
+  "text" : "a/b \\ \"quoted\" <tag> & é ✓ 😀 \t\n end",
+  "nullText" : null,
+  "primitiveInt" : 7,
+  "primitiveLong" : 9007199254740993,
+  "primitiveDouble" : 0.1,
+  "flag" : true,
+  "letter" : "x",
+  "boxedDouble" : 1.0E-7,
+  "boxedNull" : null,
+  "decimal" : 12345678901234567890.000100,
+  "bytes" : "Ynl0ZXM=",
+  "colour" : "GREEN",
+  "dataType" : "COORDINATES",
+  "objectId" : "5a1b2c3d4e5f60718293a4b5",
+  "zone" : "Australia/Brisbane",
+  "period" : "1Y2MO3W4D5H6M7.008S",
+  "shortPeriod" : "15M",
+  "mediaType" : "text/csv; charset=utf-8",
+  "utcTime" : "2023-03-14T01:59:26.535Z",
+  "zonedTime" : "2023-03-14T01:59:26.535Z",
+  "localDate" : "2023-03-14",
+  "localDateTime" : "2023-03-14T12:30:00.000",
+  "duration" : 5400000,
+  "date" : "2023-03-14T01:59:26.535+00:00",
+  "optionalPresent" : "present",
+  "optionalEmpty" : null,
+  "optionalNull" : null,
+  "list" : [ 1, "two", 3.0, null, [ ] ],
+  "map" : {
+    "z" : 1,
+    "a" : null,
+    "m" : { }
+  },
+  "intKeyMap" : {
+    "2" : "two",
+    "10" : "ten"
+  },
+  "dateKeyMap" : {
+    "2023-03-14T01:59:26.535Z" : "t0"
+  },
+  "emptyBean" : { },
+  "field" : {
+    "v" : 3.5,
+    "q" : 1,
+    "a" : "a"
+  },
+  "coordinates" : {
+    "$coords" : [ 1.0, 2.0 ]
+  }
+}
