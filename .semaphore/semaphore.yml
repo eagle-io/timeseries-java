@@ -15,6 +15,7 @@ blocks:
         - name: 'Build'
           commands:
             - checkout
+            - sem-version java 21
             - .semaphore/build.sh
 promotions:
   - name: Publish to packages
