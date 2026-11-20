@@ -1,11 +1,10 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 import org.joda.time.DateTimeZone;
 
-import java.io.IOException;
 
 
 public final class DateTimeZoneSerializer extends StdScalarSerializer<DateTimeZone> {
@@ -18,7 +17,7 @@ public final class DateTimeZoneSerializer extends StdScalarSerializer<DateTimeZo
 
 
     @Override
-    public void serialize(DateTimeZone value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(DateTimeZone value, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeString(value.getID());
     }
 

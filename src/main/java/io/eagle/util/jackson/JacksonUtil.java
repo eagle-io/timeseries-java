@@ -1,13 +1,11 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +15,7 @@ public class JacksonUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JacksonUtil.class);
 
-    private static ObjectMapper EAGLE_OBJECT_MAPPER = new EagleObjectMapper();
+    private static final ObjectMapper EAGLE_OBJECT_MAPPER = new EagleObjectMapper();
 
     /**
      * Builds and returns a Jackson {@link ObjectMapper}.
@@ -41,7 +39,7 @@ public class JacksonUtil {
                 json = getObjectMapper().writeValueAsString(object);
             else
                 json = getObjectMapper().writerWithView(view).writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             logger.error("COULD NOT CONVERT OBJECT TO JSON [{}]", object.getClass().getName(), e);
         }
 
@@ -76,10 +74,8 @@ public class JacksonUtil {
         String json = null;
 
         try {
-            ObjectMapper mapper = getObjectMapper();
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+            json = getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        } catch (JacksonException e) {
             logger.error("COULD NOT CONVERT OBJECT TO JSON [{}]", object.getClass().getName(), e);
         }
 
@@ -98,7 +94,7 @@ public class JacksonUtil {
 
         try {
             object = getObjectMapper().readValue(json, valueType);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             logger.error("COULD NOT CONVERT JSON TO {}: {}", valueType.getSimpleName(), e);
         }
 
@@ -117,7 +113,7 @@ public class JacksonUtil {
 
         try {
             object = getObjectMapper().readValue(json, valueType);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             logger.error("COULD NOT CONVERT JSON TO {}: {}", valueType.getClass().getName(), e);
         }
 
@@ -137,7 +133,7 @@ public class JacksonUtil {
         try {
             object = getObjectMapper().readValue(json, new TypeReference<HashMap<String, Object>>() {
             });
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             logger.error("COULD NOT CONVERT JSON TO MAP", e);
         }
 

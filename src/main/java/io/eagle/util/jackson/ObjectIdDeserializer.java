@@ -1,10 +1,10 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,23 +40,23 @@ public final class ObjectIdDeserializer extends StdScalarDeserializer<ObjectId> 
     /**
      * Deserializes the current JSON token to a BSON {@link ObjectId}.
      *
-     * @see com.fasterxml.jackson.databind.JsonDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser,
-     * com.fasterxml.jackson.databind.DeserializationContext)
+     * @see tools.jackson.databind.ValueDeserializer#deserialize(tools.jackson.core.JsonParser,
+     * tools.jackson.databind.DeserializationContext)
      */
     @Override
-    public ObjectId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JsonMappingException {
+    public ObjectId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws DatabindException {
         ObjectId objectId = null;
-        JsonToken token = jsonParser.getCurrentToken();
+        JsonToken token = jsonParser.currentToken();
 
         try {
             // The JSON token must be a String
             if (token == JsonToken.VALUE_STRING) {
                 objectId = new ObjectId(jsonParser.getValueAsString());
             } else {
-                throw deserializationContext.mappingException("Invalid type, must be String: " + token);
+                throw DatabindException.from(jsonParser, "Invalid type, must be String: " + token);
             }
         } catch (Exception e) {
-            throw deserializationContext.mappingException("Invalid ObjectId: " + token);
+            throw DatabindException.from(jsonParser, "Invalid ObjectId: " + token);
         }
 
         return objectId;

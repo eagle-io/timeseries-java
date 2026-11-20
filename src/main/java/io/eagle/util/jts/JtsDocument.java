@@ -1,10 +1,6 @@
 package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.base.Objects;
 import io.eagle.util.Assert;
 import io.eagle.util.jackson.EagleObjectMapper;
@@ -17,6 +13,11 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -174,9 +175,9 @@ public class JtsDocument {
      *
      * @param inputStream the stream to read JSON from
      * @throws IOException             if there is an error reading the JSON stream
-     * @throws JsonProcessingException if there is an error reading the JSON stream
+     * @throws JacksonException if there is an error reading the JSON stream
      */
-    public JtsDocument( InputStream inputStream ) throws JsonProcessingException, IOException {
+    public JtsDocument( InputStream inputStream ) throws JacksonException, IOException {
         this( JtsDocument.readJsonFromStream( inputStream ) );
     }
 
@@ -188,9 +189,9 @@ public class JtsDocument {
      *
      * @param inputString the String to read JSON from
      * @throws IOException             if there is an error reading the JSON stream
-     * @throws JsonProcessingException if there is an error reading the JSON stream
+     * @throws JacksonException if there is an error reading the JSON stream
      */
-    public JtsDocument( String inputString ) throws JsonProcessingException, IOException {
+    public JtsDocument( String inputString ) throws JacksonException, IOException {
         this( JtsDocument.readJsonFromString( inputString ) );
     }
 
@@ -200,10 +201,10 @@ public class JtsDocument {
      *
      * @param inputStream the input stream to read JSON from
      * @return a new JtsDocument constructed from JSON
-     * @throws JsonProcessingException if there is an error reading the JSON stream
+     * @throws JacksonException if there is an error reading the JSON stream
      * @throws IOException             if there is an error reading the JSON stream
      */
-    public static JtsDocument readJsonFromStream( InputStream inputStream ) throws JsonProcessingException, IOException {
+    public static JtsDocument readJsonFromStream( InputStream inputStream ) throws JacksonException, IOException {
         return getJsonReader().readValue( inputStream );
     }
 
@@ -213,10 +214,10 @@ public class JtsDocument {
      *
      * @param inputString the input String to read JSON from
      * @return a new JtsDocument constructed from JSON
-     * @throws JsonProcessingException if there is an error reading the JSON stream
+     * @throws JacksonException if there is an error reading the JSON stream
      * @throws IOException             if there is an error reading the JSON String
      */
-    public static JtsDocument readJsonFromString( String inputString ) throws JsonProcessingException, IOException {
+    public static JtsDocument readJsonFromString( String inputString ) throws JacksonException, IOException {
         return getJsonReader().readValue( inputString );
     }
 
@@ -336,7 +337,7 @@ public class JtsDocument {
 
         try {
             json = toJsonPretty();
-        } catch( JsonProcessingException e ) {
+        } catch( JacksonException e ) {
             logger.error( e.getMessage() );
         }
 
@@ -406,7 +407,7 @@ public class JtsDocument {
     /**
      * Returns a String representing this JtsDocument as delimited text.
      * <p>
-     * <h2>Header row</h2>
+     * <h4>Header row</h4>
      * If the header of this document is not null, a header row will be printed as the first row of the return String; it will contain
      * {@code Timestamp} followed by the delimiter-separated column names. Both the {@code Timestamp} string and column name strings will be
      * enclosed by the given text qualifier. For example, if the text qualifier is double quotes, and the delimiter is comma, the header
@@ -414,7 +415,7 @@ public class JtsDocument {
      * <p>
      * {@code "Timestamp", "Column 1", "Column 2"}
      * <p>
-     * <h2>Quality codes</h2> If the quality code for a field is non-null, that quality is printed in the delimited text according to the
+     * <h4>Quality codes</h4> If the quality code for a field is non-null, that quality is printed in the delimited text according to the
      * given QualityFormat.
      *
      * @return a String representing this JtsDocument as csv data, using the given timezone when formatting a DateTime
@@ -440,7 +441,7 @@ public class JtsDocument {
         return isEmpty() ? Duration.ZERO : new Duration( this.getFirstTimestamp(), this.getLastTimestamp() );
     }
 
-    public String toJson() throws JsonProcessingException {
+    public String toJson() throws JacksonException {
         return this.toJson( DocumentFormat.JSON_STANDARD, DateTimeZone.UTC );
     }
 
@@ -459,16 +460,16 @@ public class JtsDocument {
      * @param dateTimeZone the timezone to use when serializing a Joda {@link DateTime} Object; if null, {@link DateTime} Objects will be
      *                     formatted using their current timezone
      * @return this JtsDocument as a JSON string, with formatted Double values
-     * @throws JsonProcessingException if there is an error writing the JSON string
+     * @throws JacksonException if there is an error writing the JSON string
      */
-    public String toJson( DocumentFormat documentFormat, DateTimeZone dateTimeZone ) throws JsonProcessingException {
+    public String toJson( DocumentFormat documentFormat, DateTimeZone dateTimeZone ) throws JacksonException {
         if( documentFormat.isHeaderEnabled() && this.header != null )
             return toJson( documentFormat, dateTimeZone, DocumentAndHeaderAndData.class );
         else
             return toJson( documentFormat, dateTimeZone, DocumentAndData.class );
     }
 
-    public String toJson( DocumentFormat documentFormat, DateTimeZone dateTimeZone, Class<? extends JtsView> view ) throws JsonProcessingException {
+    public String toJson( DocumentFormat documentFormat, DateTimeZone dateTimeZone, Class<? extends JtsView> view ) throws JacksonException {
         Map<Integer, String> numberFormat = null;
 
         if( this.header != null )
@@ -481,7 +482,7 @@ public class JtsDocument {
         ObjectWriter writer = mapper.writerWithView( view );
 
         if( documentFormat.isPretty() )
-            writer = writer.withDefaultPrettyPrinter();
+            writer = writer.with( new JtsPrettyPrinter() );
 
         return writer.writeValueAsString( this );
     }
@@ -495,19 +496,19 @@ public class JtsDocument {
      * @return this JtsDocument as a JSON string, formatted to be more easily human-readable, using the default UTC timezone when
      * serializing
      * a Joda {@link DateTime}
-     * @throws JsonProcessingException if there is an error writing the JSON string
+     * @throws JacksonException if there is an error writing the JSON string
      * @see #toJsonPretty()
      */
-    public String toJsonPretty() throws JsonProcessingException {
+    public String toJsonPretty() throws JacksonException {
         return this.toJson( DocumentFormat.JSON, DateTimeZone.UTC );
     }
 
     /**
      * Converts the given {@link JtsDocument} to a String, based on the required {@link DocumentFormatType} (for example CSV, JSON).
      *
-     * @throws JsonProcessingException if there is an error serializing the JtsDocument to JSON
+     * @throws JacksonException if there is an error serializing the JtsDocument to JSON
      */
-    public String renderRecords( DocumentFormat format, DateTimeZone timezone, boolean documentStart ) throws JsonProcessingException {
+    public String renderRecords( DocumentFormat format, DateTimeZone timezone, boolean documentStart ) throws JacksonException {
         switch( format.getFormatType() ) {
             case CSV:
                 return this.toDelimitedText( format.withHeaderEnabled( false ), timezone );
@@ -526,7 +527,7 @@ public class JtsDocument {
         }
     }
 
-    public String renderHeader( DocumentFormat format, DateTimeZone timezone ) throws JsonProcessingException {
+    public String renderHeader( DocumentFormat format, DateTimeZone timezone ) throws JacksonException {
         switch( format.getFormatType() ) {
             case CSV:
                 if( format.isHeaderEnabled() )

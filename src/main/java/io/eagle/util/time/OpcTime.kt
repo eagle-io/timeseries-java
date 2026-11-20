@@ -62,7 +62,7 @@ object OpcTime {
         expr = expr.replace("\\s+".toRegex(), "")
 
         // Convert to uppercase to avoid OPC parsing problems
-        expr = expr.toUpperCase()
+        expr = expr.uppercase()
         val match = Pattern.compile(OPC_RELATIVE_TIME, Pattern.CASE_INSENSITIVE).matcher(expr)
         if (match.matches()) {
             // for( int i=0; i<match.groupCount(); i++ )
@@ -180,7 +180,7 @@ object OpcTime {
         expr = expr.replace("\\s+".toRegex(), "")
 
         // Convert to uppercase to avoid OPC parsing problems
-        expr = expr.toUpperCase()
+        expr = expr.uppercase()
 
         // Period match ensures the entire string consists only of value/unit concatenated pairs
         if (isValidPeriod(expr)) {

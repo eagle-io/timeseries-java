@@ -1,12 +1,10 @@
 package io.eagle.util.jts;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.eagle.util.NumberFormat;
 import org.joda.time.DateTime;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -33,7 +31,7 @@ public class JtsProfileSerializer extends StdSerializer<JtsProfile> {
     }
 
     @Override
-    public void serialize(JtsProfile profile, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(JtsProfile profile, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeRaw("\n");
         jgen.writeStartArray();
         jgen.writeRaw("\n");
@@ -48,11 +46,11 @@ public class JtsProfileSerializer extends StdSerializer<JtsProfile> {
                 Double pos = profile.getPos(row, ts);
                 Double val = profile.getVal(row, ts);
 
-                jgen.writeObjectFieldStart(String.valueOf(column++));
-                jgen.writeFieldName("pos");
+                jgen.writeObjectPropertyStart(String.valueOf(column++));
+                jgen.writeName("pos");
                 jgen.writeNumber(format(pos));
-                jgen.writeObjectFieldStart("f");
-                jgen.writeFieldName("v");
+                jgen.writeObjectPropertyStart("f");
+                jgen.writeName("v");
                 jgen.writeNumber(format(val));
                 jgen.writeEndObject();
                 jgen.writeEndObject();

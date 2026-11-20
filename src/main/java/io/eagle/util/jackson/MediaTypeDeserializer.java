@@ -1,10 +1,10 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import com.google.common.net.MediaType;
 
 
@@ -19,19 +19,19 @@ public final class MediaTypeDeserializer extends StdScalarDeserializer<MediaType
     }
 
     @Override
-    public MediaType deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JsonMappingException {
+    public MediaType deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws DatabindException {
         MediaType mimeType = null;
-        JsonToken token = jsonParser.getCurrentToken();
+        JsonToken token = jsonParser.currentToken();
 
         try {
             // The JSON token must be a String
             if (token == JsonToken.VALUE_STRING) {
                 mimeType = MediaType.parse(jsonParser.getValueAsString());
             } else {
-                throw deserializationContext.mappingException("Invalid type, must be String: " + token);
+                throw DatabindException.from(jsonParser, "Invalid type, must be String: " + token);
             }
         } catch (Exception e) {
-            throw deserializationContext.mappingException("Invalid ObjectId: " + token);
+            throw DatabindException.from(jsonParser, "Invalid ObjectId: " + token);
         }
 
         return mimeType;

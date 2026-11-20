@@ -1,0 +1,1 @@
+{"id":"col0","name":"Column 0","dataType":"NUMBER","aggregate":"AVERAGE","interval":"1Y2MO3D4H5M6S","baseTime":"D+1H","format":"0.##","renderType":"VALUE","units":"m/s","metrics":"min,max","baselineType":"ABSOLUTE","baselineTime":"2023-03-14T01:59:26.535Z","metadata":{"source":"logger/0","nullValue":null,"number":42}}

@@ -1,0 +1,1 @@
+{big=BigInteger:123456789012345678901234567890;bool=Boolean:true;null=null;double=Double:1.5;text=String:a/b;exp=Double:1000.0;list=[Integer:1;String:a;{b=Double:2.0;};];int=Integer:1;long=Long:12345678901234;}
