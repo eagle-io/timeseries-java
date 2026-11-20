@@ -3,7 +3,7 @@
  */
 package io.eagle.util.jts;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.google.common.collect.Maps;
 import io.eagle.util.DataType;
 import io.eagle.util.FieldFormat;
@@ -214,7 +214,7 @@ public class JtsTest {
 
     @Test
     @Disabled("legacy test")
-    public final void testJtsDocumentToFormattedJson() throws JsonProcessingException {
+    public final void testJtsDocumentToFormattedJson() throws JacksonException {
 
         JtsTable<?> jtsRecordSet = new JtsTable<>();
 
@@ -287,7 +287,7 @@ public class JtsTest {
 
 
     @Test
-    public final void testJtsDocumentHeader() throws JsonProcessingException {
+    public final void testJtsDocumentHeader() throws JacksonException {
         JtsDocumentHeader jtsDocumentHeader = this.getSampleHeader();
 
         logger.info( jtsDocumentHeader.toJsonPretty( DateTimeZone.UTC ) );
@@ -350,7 +350,7 @@ public class JtsTest {
 
     @Test
     @Disabled("legacy test")
-    public final void testJtsFieldStringMethods() throws JsonProcessingException {
+    public final void testJtsFieldStringMethods() throws JacksonException {
         Double doubleValue = new Double( 3.14159265359 );
         String stringValue = "he{ll}o: \"wor\\d\"";
         DateTime dateValue = RECORD_1_TIMESTAMP;// .toDate();

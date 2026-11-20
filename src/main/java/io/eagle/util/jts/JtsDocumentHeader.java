@@ -2,7 +2,6 @@ package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 import io.eagle.util.Assert;
 import io.eagle.util.jackson.JacksonUtil;
@@ -11,6 +10,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
@@ -166,9 +166,9 @@ public class JtsDocumentHeader {
      * Returns this JtsDocumentHeader as a JSON string.
      *
      * @return this JtsDocumentHeader as a JSON formatted string
-     * @throws JsonProcessingException if there is an error writing this JtsDocumentHeader as a JSON string
+     * @throws JacksonException if there is an error writing this JtsDocumentHeader as a JSON string
      */
-    public String toJson() throws JsonProcessingException {
+    public String toJson() throws JacksonException {
         return JacksonUtil.getObjectMapper().writeValueAsString(this);
     }
 
@@ -180,10 +180,10 @@ public class JtsDocumentHeader {
      *
      * @return this JtsDocumentHeader as a JSON string, formatted to be more easily human-readable, using the default UTC timezone when
      * serializing a Joda {@link DateTime}
-     * @throws JsonProcessingException if there is an error writing the JSON string
+     * @throws JacksonException if there is an error writing the JSON string
      * @see #toJsonPretty(DateTimeZone)
      */
-    public String toPrettyJson() throws JsonProcessingException {
+    public String toPrettyJson() throws JacksonException {
         return this.toJsonPretty(DateTimeZone.UTC);
     }
 
@@ -228,9 +228,9 @@ public class JtsDocumentHeader {
      *                     formatted using their current timezone
      * @return this JtsDocumentHeader as a JSON string, formatted to be more easily human-readable, using the given timezone when
      * serializing a Joda {@link DateTime}
-     * @throws JsonProcessingException if there is an error writing the JSON string
+     * @throws JacksonException if there is an error writing the JSON string
      */
-    public String toJsonPretty(DateTimeZone dateTimeZone) throws JsonProcessingException {
+    public String toJsonPretty(DateTimeZone dateTimeZone) throws JacksonException {
         return JacksonUtil.toJson(this);
     }
 

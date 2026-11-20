@@ -1,13 +1,12 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 
 
 /**
@@ -35,7 +34,7 @@ public final class MediaTypeSerializer extends StdScalarSerializer<MediaType> {
 
 
     @Override
-    public void serialize(MediaType value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(MediaType value, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeString(value.toString());
     }
 

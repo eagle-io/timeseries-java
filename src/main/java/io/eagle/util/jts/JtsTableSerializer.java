@@ -1,19 +1,15 @@
 package io.eagle.util.jts;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.ImmutableMap;
 import io.eagle.util.jackson.JacksonUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Map;
 
 
@@ -24,8 +20,9 @@ import java.util.Map;
  * <ul>
  * <li>if a non-null column header map is provided, it will be used to format {@link Double} Objects according to the appropriate format
  * string
- * <li>if a {@link PrettyPrinter} has already been enabled, it will be temporarily replaced with a {@link MinimalPrettyPrinter}, causing
- * each {@link JtsRecord} to be printed on only one line (this improves readability when there are many JtsRecords in a document)
+ * <li>if the {@link DocumentFormat} is pretty and the generator uses a {@link JtsPrettyPrinter}, it is temporarily switched to single-line
+ * output, causing each {@link JtsRecord} to be printed on only one line (this improves readability when there are many JtsRecords in a
+ * document)
  * </ul>
  *
  * @author <a href="mailto:jesse@argos.io">Jesse Mitchell</a>
@@ -38,13 +35,6 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
 
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(JtsTableSerializer.class);
-
-    /**
-     * A minimal PrettyPrinter used to ensure each JtsRecord is printed on only one line
-     */
-    private static final PrettyPrinter minimalPrettyPrinter = new MinimalPrettyPrinter();
-
-    private static final PrettyPrinter regularPrettyPrinter = new DefaultPrettyPrinter();
 
     private final Map<Integer, String> numberFormats;
     private final DocumentFormat documentFormat;
@@ -61,13 +51,13 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
     /**
      * Serializes the given {@link JtsDocument} to JSON.
      *
-     * @see com.fasterxml.jackson.databind.ser.std.StdSerializer#serialize(java.lang.Object, com.fasterxml.jackson.core.JsonGenerator,
-     * com.fasterxml.jackson.databind.SerializerProvider)
+     * @see tools.jackson.databind.ValueSerializer#serialize(java.lang.Object, tools.jackson.core.JsonGenerator,
+     * tools.jackson.databind.SerializationContext)
      */
     @Override
-    public void serialize(JtsTable<?> table, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        if (this.documentFormat.isPretty())
-            jgen.setPrettyPrinter(regularPrettyPrinter);
+    public void serialize(JtsTable<?> table, JsonGenerator jgen, SerializationContext provider) {
+        JtsPrettyPrinter prettyPrinter = this.documentFormat.isPretty() && jgen.getPrettyPrinter() instanceof JtsPrettyPrinter
+                ? (JtsPrettyPrinter) jgen.getPrettyPrinter() : null;
 
         jgen.writeStartArray();
 
@@ -86,7 +76,8 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
             if (this.documentFormat.isPretty()) {
                 jgen.writeRaw("\n    ");
                 tsValue = String.valueOf(ts.withZone(this.dateTimeZone));
-                jgen = jgen.setPrettyPrinter(minimalPrettyPrinter);
+                if (prettyPrinter != null)
+                    prettyPrinter.setSingleLine(true);
             } else {
                 tsValue = ImmutableMap.of(Time.MILLIS_KEY, ts.getMillis());
             }
@@ -95,8 +86,8 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                 tsValue = ImmutableMap.of("$winddir", ts.getMillis());
 
             jgen.writeStartObject();
-            jgen.writeObjectField("ts", tsValue);
-            jgen.writeFieldName("f");
+            jgen.writePOJOProperty("ts", tsValue);
+            jgen.writeName("f");
             jgen.writeStartObject();
 
             fields = records.get(ts);
@@ -105,7 +96,7 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                 if (fields.containsKey(index)) {
                     field = fields.get(index);
 
-                    jgen.writeFieldName(String.valueOf(index));
+                    jgen.writeName(String.valueOf(index));
                     jgen.writeStartObject();
 
                     if (field.getValue() != null) {
@@ -115,28 +106,28 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
                         if (field.getValue() instanceof Time) {
                             if (this.documentFormat.isPretty()) {
                                 String tsString = String.valueOf(JtsDocument.renderTime(field.getValueAsTime().getValue(), this.dateTimeZone, format));
-                                jgen.writeObjectField("v", ImmutableMap.of(Time.TIME_KEY, tsString));
+                                jgen.writePOJOProperty("v", ImmutableMap.of(Time.TIME_KEY, tsString));
                             } else {
-                                jgen.writeObjectField("v", ImmutableMap.of(Time.MILLIS_KEY, field.getValueAsTime().getValue().getMillis()));
+                                jgen.writePOJOProperty("v", ImmutableMap.of(Time.MILLIS_KEY, field.getValueAsTime().getValue().getMillis()));
                             }
                         } else if (field.getValue() instanceof Double) {
-                            jgen.writeFieldName("v");
+                            jgen.writeName("v");
                             jgen.writeNumber(value);
                         } else if (field.getValue() instanceof String) {
                             // Text qualifiers should be ignored for JSON so we ignore the rendered value
-                            jgen.writeObjectField("v", field.getValue());
+                            jgen.writePOJOProperty("v", field.getValue());
                         } else if (field.getValue() instanceof ComplexValue) {
                             // ComplexValues should be serialized as an object with embedded type identifier
-                            jgen.writeObjectField("v", field.getValue());
+                            jgen.writePOJOProperty("v", field.getValue());
                         } else
-                            jgen.writeObjectField("v", value);
+                            jgen.writePOJOProperty("v", value);
                     }
 
                     if (field.getQuality() != null)
-                        jgen.writeObjectField("q", field.getQuality());
+                        jgen.writePOJOProperty("q", field.getQuality());
 
                     if (field.getAnnotation() != null)
-                        jgen.writeObjectField("a", field.getAnnotation());
+                        jgen.writePOJOProperty("a", field.getAnnotation());
 
                     jgen.writeEndObject();
                 }
@@ -148,9 +139,9 @@ public final class JtsTableSerializer extends StdSerializer<JtsTable<?>> {
             // end record
             jgen.writeEndObject();
 
-            // Replace our MinimalPrettyPrinter with the regular multiline pretty printer
-            if (this.documentFormat.isPretty())
-                jgen = jgen.setPrettyPrinter(regularPrettyPrinter);
+            // Switch back to the regular multiline pretty printer
+            if (prettyPrinter != null)
+                prettyPrinter.setSingleLine(false);
         }
 
         if (this.documentFormat.isPretty())

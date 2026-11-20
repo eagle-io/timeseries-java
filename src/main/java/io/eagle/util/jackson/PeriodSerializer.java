@@ -1,12 +1,10 @@
 package io.eagle.util.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 import org.joda.time.Period;
 
-import java.io.IOException;
 
 
 public final class PeriodSerializer extends StdScalarSerializer<Period> {
@@ -20,7 +18,7 @@ public final class PeriodSerializer extends StdScalarSerializer<Period> {
 
 
     @Override
-    public void serialize(Period value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(Period value, JsonGenerator jgen, SerializationContext provider) {
         String opc = value.toString();
 
         if (opc.contains("T"))

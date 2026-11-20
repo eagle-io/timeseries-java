@@ -15,6 +15,7 @@ blocks:
         - name: packages.eagle.io
           commands:
             - checkout
+            - sem-version java 21
             - source .semaphore/cache-helpers.sh
             - restore-gradle-cache
             - ./gradlew build -x test --info --stacktrace

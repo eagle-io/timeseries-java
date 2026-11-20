@@ -1,15 +1,16 @@
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     `java-library`
     `maven-publish`
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "2.4.21"
 }
 
 group = "io.eagle"
-version = "1.0.33"
+version = "2.0.0"
 
 repositories {
     mavenCentral()
@@ -25,13 +26,11 @@ dependencies {
     implementation("com.github.mfornos:humanize-slim:1.2.2")
     implementation("com.github.mfornos:humanize-joda:1.2.2")
 
-    val jacksonVersion = "2.15.2"
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion")
+    val jacksonVersion = "3.1.8"
+    api(platform("tools.jackson:jackson-bom:$jacksonVersion"))
+    api("tools.jackson.core:jackson-databind")
+    api("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.datatype:jackson-datatype-joda")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 }
@@ -55,7 +54,8 @@ publishing {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withJavadocJar()
     withSourcesJar()
 }
@@ -71,8 +71,8 @@ kotlin {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }

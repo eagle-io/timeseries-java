@@ -2,7 +2,6 @@ package io.eagle.util.jts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Objects;
 import com.google.common.collect.*;
 import io.eagle.util.Assert;
@@ -15,6 +14,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * <b>Note, all references to rows and columns in the subsequent documentation implicitly refer to the transposed table, with
  * {@link DateTime} rows and {@link Integer} column numbers.</b>
  * <p>
- * <h3>Example: Internal Structure (never referenced directly)</h3>
+ * <h2>Example: Internal Structure (never referenced directly)</h2>
  *
  * <pre>
  *    |  2014-05-26T19:15:00Z  |  2014-05-26T19:30:00Z  |  2014-05-26T19:45:00Z  |
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * ---|------------------------|------------------------|------------------------|
  * </pre>
  * <p>
- * <h3>Example: Transposed Structure (the only way the table is referenced in JtsTable methods, and implied in all method javadoc)</h3>
+ * <h2>Example: Transposed Structure (the only way the table is referenced in JtsTable methods, and implied in all method javadoc)</h2>
  *
  * <pre>
  *                        |           0            |           1            |           2            |
@@ -1771,7 +1771,7 @@ public final class JtsTable<T> extends ForwardingTable<DateTime, Integer, JtsFie
         return sb.toString();
     }
 
-    public String toJson() throws JsonProcessingException {
+    public String toJson() throws JacksonException {
         return new JtsDocument( this ).toJsonPretty();
     }
 

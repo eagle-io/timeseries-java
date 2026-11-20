@@ -1,7 +1,5 @@
 package io.eagle.util.jts;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.eagle.util.geo.Coordinates;
 import io.eagle.util.jackson.JacksonUtil;
 import org.joda.time.DateTime;
@@ -9,6 +7,8 @@ import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 
@@ -73,7 +73,7 @@ class ComplexValueTest {
     }
 
     @Test
-    void testDocumentSerialization() throws JsonProcessingException {
+    void testDocumentSerialization() throws JacksonException {
         JtsTable<?> table = new JtsTable<>();
         DateTime ts = DateTime.now(DateTimeZone.UTC);
         table.put(ts, 0, JtsField.of(new Coordinates(35.1, 151.2)));
